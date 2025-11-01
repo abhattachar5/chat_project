@@ -1,0 +1,122 @@
+:host {
+  display: block;
+  position: fixed;
+  bottom: 24px;
+  right: 24px;
+  z-index: 10000;
+}
+
+.ins-widget-container {
+  position: relative;
+}
+
+.ins-fab-button {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  
+  &:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  }
+}
+
+.ins-chat-panel {
+  width: 400px;
+  max-width: calc(100vw - 48px);
+  height: 600px;
+  max-height: calc(100vh - 48px);
+  background: var(--ins-surface, #ffffff);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  @media (max-width: 768px) {
+    width: 100vw;
+    height: 100vh;
+    max-width: 100vw;
+    max-height: 100vh;
+    border-radius: 0;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+  }
+}
+
+.ins-widget-header {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  min-height: 64px;
+
+  .ins-widget-subtitle {
+    font-size: 12px;
+    opacity: 0.8;
+    margin-left: 8px;
+  }
+
+  .ins-spacer {
+    flex: 1 1 auto;
+  }
+}
+
+.ins-widget-content {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.ins-tabs {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+
+  ::ng-deep .mat-mdc-tab-body-wrapper {
+    flex: 1 1 auto;
+    overflow: hidden;
+  }
+}
+
+.ins-chat-content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+.ins-loading-state,
+.ins-error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+  color: #666;
+  flex: 1 1 auto;
+}
+
+.ins-error-state {
+  color: #d32f2f;
+
+  mat-icon {
+    font-size: 48px;
+    width: 48px;
+    height: 48px;
+    margin-bottom: 1rem;
+  }
+}
+
+.ins-transcript-content {
+  padding: 1rem;
+  color: #666;
+}
+
+/* Ensure transcript tab fills available space */
+::ng-deep .mat-mdc-tab-body-wrapper {
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+

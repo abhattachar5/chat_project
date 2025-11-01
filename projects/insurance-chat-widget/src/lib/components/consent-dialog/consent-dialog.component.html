@@ -1,0 +1,35 @@
+<div class="ins-consent-dialog">
+  <h2 mat-dialog-title>{{ title }}</h2>
+  
+  <mat-dialog-content>
+    <div class="ins-consent-message">
+      <mat-icon class="ins-consent-icon">info</mat-icon>
+      <p>{{ message }}</p>
+    </div>
+    
+    <div class="ins-consent-details">
+      <h3>What we'll use:</h3>
+      <ul>
+        <li><strong>Microphone:</strong> To capture your voice responses during the interview</li>
+        <li><strong>Transcript:</strong> To store a record of your interview for compliance</li>
+      </ul>
+      
+      <h3>Your options:</h3>
+      <ul>
+        <li>You can <strong>decline</strong> and continue with text-only mode</li>
+        <li>You can <strong>accept</strong> to enable voice input for a faster experience</li>
+        <li>You can switch between voice and text at any time</li>
+      </ul>
+    </div>
+  </mat-dialog-content>
+  
+  <mat-dialog-actions align="end">
+    <button mat-button (click)="decline()" class="ins-button-decline">
+      {{ declineLabel }}
+    </button>
+    <button mat-raised-button color="primary" (click)="accept()" class="ins-button-accept">
+      {{ acceptLabel }}
+    </button>
+  </mat-dialog-actions>
+</div>
+

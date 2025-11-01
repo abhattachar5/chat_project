@@ -1,0 +1,23 @@
+.ins-navigation-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 8px;
+  border-top: 1px solid #e0e0e0;
+  background: var(--ins-surface, #fafafa);
+  flex-shrink: 0;
+}
+
+.ins-nav-button {
+  color: var(--ins-primary, #0D47A1);
+
+  &:hover:not(:disabled) {
+    background: rgba(13, 71, 161, 0.1);
+  }
+
+  &:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+}
+

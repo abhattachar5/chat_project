@@ -1,0 +1,39 @@
+// Material Theme Configuration
+@use '@angular/material' as mat;
+@include mat.core();
+
+// Define custom theme colors
+$ins-primary: mat.define-palette(mat.$blue-palette, 800);
+$ins-secondary: mat.define-palette(mat.$blue-palette, 600);
+$ins-error: mat.define-palette(mat.$red-palette);
+
+// Light theme
+$ins-light-theme: mat.define-light-theme((
+  color: (
+    primary: $ins-primary,
+    accent: $ins-secondary,
+    warn: $ins-error,
+  ),
+  typography: mat.define-typography-config(),
+  density: 0,
+));
+
+// Dark theme
+$ins-dark-theme: mat.define-dark-theme((
+  color: (
+    primary: $ins-primary,
+    accent: $ins-secondary,
+    warn: $ins-error,
+  ),
+  typography: mat.define-typography-config(),
+  density: 0,
+));
+
+// Apply light theme by default
+@include mat.all-component-themes($ins-light-theme);
+
+// Apply dark theme when .dark-mode class is present
+.dark-mode {
+  @include mat.all-component-colors($ins-dark-theme);
+}
+

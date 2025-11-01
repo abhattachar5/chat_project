@@ -1,0 +1,76 @@
+{
+  "name": "@provider/insurance-chat-widget",
+  "version": "0.1.0",
+  "description": "Embeddable Insurance Interview Chat Widget with Angular 18 and Angular Material. Supports text and voice input, WCAG 2.1 AA compliant.",
+  "keywords": [
+    "angular",
+    "chat-widget",
+    "insurance",
+    "voice-input",
+    "accessibility",
+    "wcag"
+  ],
+  "author": "Provider Team",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/provider/insurance-chat-widget.git"
+  },
+  "bugs": {
+    "url": "https://github.com/provider/insurance-chat-widget/issues"
+  },
+  "homepage": "https://github.com/provider/insurance-chat-widget#readme",
+  "scripts": {
+    "ng": "ng",
+    "start": "ng serve insurance-chat-widget-demo",
+    "build": "ng build",
+    "build:lib": "ng build insurance-chat-widget",
+    "build:umd": "ng build insurance-chat-widget --configuration production --output-hashing=none --single-bundle",
+    "watch": "ng build --watch --configuration development",
+    "test": "ng test",
+    "test:coverage": "ng test --code-coverage",
+    "lint": "ng lint",
+    "e2e": "playwright test",
+    "format": "prettier --write \"src/**/*.{ts,html,scss,css,json}\"",
+    "format:check": "prettier --check \"src/**/*.{ts,html,scss,css,json}\""
+  },
+  "private": false,
+  "dependencies": {
+    "@angular/animations": "^18.0.0",
+    "@angular/cdk": "^18.0.0",
+    "@angular/common": "^18.0.0",
+    "@angular/compiler": "^18.0.0",
+    "@angular/core": "^18.0.0",
+    "@angular/forms": "^18.0.0",
+    "@angular/material": "^18.0.0",
+    "@angular/platform-browser": "^18.0.0",
+    "@angular/platform-browser-dynamic": "^18.0.0",
+    "rxjs": "^7.8.1",
+    "tslib": "^2.3.1",
+    "zone.js": "^0.14.3"
+  },
+  "devDependencies": {
+    "@angular-devkit/build-angular": "^18.0.0",
+    "@angular-eslint/eslint-plugin": "^18.0.0",
+    "@angular-eslint/template-parser": "^18.0.0",
+    "@angular/cli": "^18.0.0",
+    "@angular/compiler-cli": "^18.0.0",
+    "@playwright/test": "^1.40.0",
+    "@types/jasmine": "^5.1.4",
+    "@types/node": "^20.10.0",
+    "eslint": "^8.56.0",
+    "jasmine-core": "^5.3.0",
+    "karma": "^6.4.3",
+    "karma-chrome-launcher": "^3.2.0",
+    "karma-coverage": "^2.2.1",
+    "karma-jasmine": "^5.1.0",
+    "karma-jasmine-html-reporter": "^2.1.0",
+    "prettier": "^3.1.1",
+    "typescript": "~5.3.3"
+  },
+  "peerDependencies": {
+    "@angular/common": "^18.0.0",
+    "@angular/core": "^18.0.0"
+  }
+}
+

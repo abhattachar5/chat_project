@@ -1,0 +1,17 @@
+<div class="ins-vu-meter-container">
+  @if (showNumeric || isReducedMotion()) {
+    <div class="ins-vu-meter-numeric" aria-live="polite" [attr.aria-label]="'Audio level: ' + audioLevel() + ' percent'">
+      {{ getNumericText() }}
+    </div>
+  } @else {
+    <canvas
+      #canvas
+      [width]="width"
+      [height]="height"
+      class="ins-vu-meter-canvas"
+      [attr.aria-label]="'Audio level: ' + audioLevel() + ' percent'"
+      role="img">
+    </canvas>
+  }
+</div>
+

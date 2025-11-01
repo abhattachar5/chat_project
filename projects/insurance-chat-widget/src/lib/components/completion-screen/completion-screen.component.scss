@@ -1,0 +1,62 @@
+.ins-completion-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  flex: 1 1 auto;
+  min-height: 200px;
+}
+
+.ins-completion-card {
+  max-width: 400px;
+  width: 100%;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.ins-completion-icon {
+  margin-bottom: 1rem;
+
+  mat-icon {
+    font-size: 64px;
+    width: 64px;
+    height: 64px;
+    color: #4caf50;
+  }
+}
+
+.ins-completion-title {
+  font-size: 24px;
+  font-weight: 500;
+  color: #333;
+  margin: 0 0 12px 0;
+}
+
+.ins-completion-message {
+  font-size: 16px;
+  color: #666;
+  margin: 0 0 24px 0;
+  line-height: 1.6;
+}
+
+.ins-completion-details {
+  margin: 24px 0;
+  padding: 16px;
+  background: #f5f5f5;
+  border-radius: 4px;
+  text-align: left;
+
+  p {
+    margin: 0;
+    line-height: 1.6;
+  }
+}
+
+.ins-completion-actions {
+  margin-top: 24px;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+

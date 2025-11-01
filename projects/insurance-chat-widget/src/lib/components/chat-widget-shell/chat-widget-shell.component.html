@@ -1,0 +1,112 @@
+<div class="ins-widget-container">
+  <!-- Minimized State: Floating Action Button -->
+  @if (!isExpanded()) {
+    <button
+      mat-fab
+      color="primary"
+      class="ins-fab-button"
+      (click)="toggleMinimize()"
+      aria-label="Open chat widget"
+      [attr.aria-expanded]="isExpanded()">
+      <mat-icon>chat</mat-icon>
+    </button>
+  }
+
+  <!-- Expanded State: Chat Panel -->
+  @if (isExpanded()) {
+    <div class="ins-chat-panel" role="dialog" aria-labelledby="ins-widget-title" aria-modal="true">
+      <mat-toolbar color="primary" class="ins-widget-header">
+        <div>
+          <span id="ins-widget-title">InsureChat</span>
+          <span class="ins-widget-subtitle" aria-label="Application interview">Application interview</span>
+        </div>
+        <span class="ins-spacer" aria-hidden="true"></span>
+        <button 
+          mat-icon-button 
+          (click)="toggleMinimize()" 
+          aria-label="Minimize chat widget"
+          [attr.aria-expanded]="isExpanded()">
+          <mat-icon aria-hidden="true">remove</mat-icon>
+        </button>
+        <button 
+          mat-icon-button 
+          (click)="close()" 
+          aria-label="Close chat widget">
+          <mat-icon aria-hidden="true">close</mat-icon>
+        </button>
+      </mat-toolbar>
+
+      <!-- Tabs -->
+      <mat-tab-group
+        [selectedIndex]="activeTab() === 'chat' ? 0 : 1"
+        (selectedTabChange)="switchTab($event.index === 0 ? 'chat' : 'transcript')"
+        class="ins-tabs"
+        aria-label="Chat and transcript tabs">
+        <mat-tab label="Chat" aria-label="Chat tab">
+          <!-- Chat Content -->
+          <div class="ins-chat-content">
+            <!-- Message List -->
+            <ins-message-list
+              [messages]="messages"
+              [currentQuestion]="currentQuestion()" />
+
+            <!-- Progress Indicator -->
+            @if (progress() > 0 && !isCompleted()) {
+              <ins-progress-indicator
+                [showPercentage]="true"
+                [showBar]="true"
+                [compact]="false" />
+            }
+
+            <!-- Completion Screen -->
+            @if (isCompleted()) {
+              <ins-completion-screen
+                (close)="close()" />
+            }
+
+            <!-- Input Bar -->
+            @if (currentQuestion() && !currentQuestion()!.isTerminal) {
+              <ins-input-bar
+                [question]="currentQuestion()!.question"
+                [isLoading]="isLoading"
+                [error]="error()"
+                (submitAnswer)="onAnswerSubmit($event)" />
+            }
+
+            <!-- Navigation Controls -->
+            @if (!isCompleted()) {
+              <ins-navigation-controls
+                [allowBackNav]="allowBackNav"
+                [isFirstQuestion]="signal(messages().length <= 1)"
+                [allowForwardNav]="signal(false)"
+                (goBack)="onGoBack()"
+                (goForward)="onGoForward()" />
+            }
+
+            <!-- Loading State -->
+            @if (isLoading() && messages().length === 0) {
+              <div class="ins-loading-state">
+                <p>Starting session...</p>
+              </div>
+            }
+
+            <!-- Error State -->
+            @if (error() && messages().length === 0) {
+              <div class="ins-error-state">
+                <mat-icon>error</mat-icon>
+                <p>{{ error() }}</p>
+                <button mat-button (click)="startSession()">Retry</button>
+              </div>
+            }
+          </div>
+        </mat-tab>
+
+        <mat-tab label="Transcript" aria-label="Transcript tab">
+          <!-- Transcript Content -->
+          <ins-transcript-tab></ins-transcript-tab>
+        </mat-tab>
+      </mat-tab-group>
+    </div>
+  }
+</div>
+

@@ -1,0 +1,129 @@
+<div class="ins-transcript-container">
+  <!-- Filters and Search -->
+  <div class="ins-transcript-controls">
+    <!-- Filter Toggle -->
+    <mat-button-toggle-group
+      [value]="selectedFilter()"
+      (change)="setFilter($event.value)"
+      aria-label="Filter transcript by role">
+      <mat-button-toggle value="all">All</mat-button-toggle>
+      <mat-button-toggle value="user">You</mat-button-toggle>
+      <mat-button-toggle value="assistant">Assistant</mat-button-toggle>
+      <mat-button-toggle value="system">System</mat-button-toggle>
+    </mat-button-toggle-group>
+
+    <!-- Search -->
+    <mat-form-field appearance="outline" class="ins-search-field">
+      <mat-label>Search transcript</mat-label>
+      <input
+        matInput
+        [value]="searchQuery()"
+        (input)="onSearchChange($any($event.target).value)"
+        placeholder="Type to search..."
+        aria-label="Search transcript" />
+      
+      @if (searchQuery()) {
+        <button
+          matSuffix
+          mat-icon-button
+          (click)="clearSearch()"
+          aria-label="Clear search">
+          <mat-icon>clear</mat-icon>
+        </button>
+      } @else {
+        <mat-icon matSuffix>search</mat-icon>
+      }
+    </mat-form-field>
+
+    <!-- Refresh Button -->
+    <button
+      mat-icon-button
+      (click)="refresh()"
+      [disabled]="isLoading()"
+      [attr.aria-label]="'Refresh transcript'"
+      matTooltip="Refresh transcript">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </div>
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="ins-transcript-loading">
+      <mat-icon>hourglass_empty</mat-icon>
+      <p>Loading transcript...</p>
+    </div>
+  }
+
+  <!-- Error State -->
+  @if (error() && !isLoading()) {
+    <div class="ins-transcript-error">
+      <mat-icon>error</mat-icon>
+      <p>{{ error() }}</p>
+      <button mat-button (click)="refresh()">Retry</button>
+    </div>
+  }
+
+  <!-- Transcript List -->
+  @if (!isLoading() && !error() && filteredTranscript().length > 0) {
+    <div class="ins-transcript-list">
+      @for (item of filteredTranscript(); track item.timestamp + item.text) {
+        <mat-card class="ins-transcript-item" [class]="'ins-transcript-item--' + item.role">
+          <div class="ins-transcript-header">
+            <div class="ins-transcript-role">
+              <mat-icon class="ins-role-icon">{{ getRoleIcon(item.role) }}</mat-icon>
+              <span class="ins-role-name">{{ getRoleDisplayName(item.role) }}</span>
+              @if (isSensitive(item)) {
+                <mat-chip class="ins-sensitive-chip">
+                  <mat-icon>lock</mat-icon>
+                  Sensitive
+                </mat-chip>
+              }
+            </div>
+            <div class="ins-transcript-meta">
+              <span class="ins-timestamp">{{ formatTimestamp(item.timestamp) }}</span>
+              <button
+                mat-icon-button
+                (click)="copyToClipboard(item)"
+                [matTooltip]="'Copy to clipboard'"
+                [attr.aria-label]="'Copy transcript item'">
+                <mat-icon>content_copy</mat-icon>
+              </button>
+            </div>
+          </div>
+          
+          <div class="ins-transcript-content">
+            <p [class.ins-masked-text]="isSensitive(item)">
+              {{ getDisplayText(item) }}
+            </p>
+            @if (isSensitive(item)) {
+              <mat-icon
+                class="ins-sensitive-icon"
+                [matTooltip]="'Sensitive information hidden'"
+                [attr.aria-label]="'Sensitive information'">
+                visibility_off
+              </mat-icon>
+            }
+          </div>
+        </mat-card>
+      }
+    </div>
+  }
+
+  <!-- Empty State -->
+  @if (!isLoading() && !error() && filteredTranscript().length === 0) {
+    <div class="ins-transcript-empty">
+      @if (searchQuery()) {
+        <mat-icon>search_off</mat-icon>
+        <p>No results found for "{{ searchQuery() }}"</p>
+        <button mat-button (click)="clearSearch()">Clear search</button>
+      } @else {
+        <mat-icon>description</mat-icon>
+        <p>No transcript items yet.</p>
+        <p style="font-size: 13px; color: #666; margin-top: 8px;">
+          Transcript will appear here as the conversation progresses.
+        </p>
+      }
+    </div>
+  }
+</div>
+

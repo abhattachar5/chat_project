@@ -1,0 +1,157 @@
+/* Global Styles for Insurance Chat Widget */
+
+/* CSS Custom Properties for Theme */
+:root {
+  --ins-primary: #0D47A1;
+  --ins-on-primary: #FFFFFF;
+  --ins-secondary: #1976D2;
+  --ins-on-secondary: #FFFFFF;
+  --ins-surface: #FAFAFA;
+  --ins-on-surface: #212121;
+  --ins-error: #B00020;
+  --ins-on-error: #FFFFFF;
+
+  /* Material Theme Tokens (will be overridden by runtime theme) */
+  --mdc-theme-primary: var(--ins-primary);
+  --mdc-theme-secondary: var(--ins-secondary);
+  --mdc-theme-error: var(--ins-error);
+  --mdc-theme-surface: var(--ins-surface);
+  --mdc-theme-on-primary: var(--ins-on-primary);
+  --mdc-theme-on-secondary: var(--ins-on-secondary);
+  --mdc-theme-on-surface: var(--ins-on-surface);
+  --mdc-theme-on-error: var(--ins-on-error);
+}
+
+/* Dark Mode Support */
+.dark-mode {
+  --ins-surface: #121212;
+  --ins-on-surface: #FFFFFF;
+}
+
+/* Accessibility: Focus Indicators */
+*:focus-visible {
+  outline: 3px solid var(--ins-primary, #0D47A1);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+/* Ensure focus indicators meet WCAG 2.1 AA contrast (3:1) */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline-color: var(--ins-primary, #0D47A1);
+  outline-width: 3px;
+  outline-style: solid;
+  outline-offset: 2px;
+}
+
+/* Screen reader only content */
+.ins-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Reduced Motion Support */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Data attribute for reduced motion (for programmatic control) */
+[data-reduced-motion="true"] *,
+[data-reduced-motion="true"] *::before,
+[data-reduced-motion="true"] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* High Contrast Mode Support */
+@media (prefers-contrast: high) {
+  * {
+    border-color: currentColor !important;
+  }
+  
+  button,
+  a,
+  input,
+  textarea,
+  select {
+    border-width: 2px;
+  }
+}
+
+/* Data attribute for high contrast mode */
+[data-high-contrast="true"] {
+  * {
+    border-color: currentColor !important;
+  }
+  
+  button,
+  a,
+  input,
+  textarea,
+  select {
+    border-width: 2px;
+  }
+}
+
+/* Ensure text meets WCAG 2.1 AA contrast ratios */
+/* Body text: 4.5:1, Large text (18pt+ or 14pt+ bold): 3:1 */
+ins-chat-widget-shell,
+.ins-widget-container {
+  color: var(--ins-on-surface, #212121);
+}
+
+/* Dark mode text contrast */
+.dark-mode {
+  color: var(--ins-on-surface, #FFFFFF);
+}
+
+/* Ensure sufficient contrast for error states */
+.ins-error-state,
+.mat-mdc-form-field-error {
+  color: var(--ins-error, #B00020);
+}
+
+/* High contrast text */
+[data-high-contrast="true"] {
+  --ins-primary: #0000FF;
+  --ins-error: #FF0000;
+  --ins-on-surface: #000000;
+  
+  button,
+  a {
+    border: 2px solid currentColor;
+  }
+}
+
+.dark-mode[data-high-contrast="true"] {
+  --ins-on-surface: #FFFFFF;
+  --ins-surface: #000000;
+}
+
+/* Reset for widget container */
+ins-chat-widget-shell,
+.ins-widget-container {
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+

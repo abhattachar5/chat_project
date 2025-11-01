@@ -1,0 +1,88 @@
+<div class="ins-message-list-container" #scrollContainer>
+  <cdk-virtual-scroll-viewport
+    itemSize="80"
+    class="ins-message-viewport"
+    (scrolledIndexChange)="setScrollContainer(scrollContainer)">
+    
+    @for (message of messages(); track message.id; let i = $index) {
+      <div
+        class="ins-message"
+        [class]="getMessageRoleClass(message.role)"
+        [attr.aria-label]="'Message from ' + message.role">
+        
+        @if (shouldShowTimestamp(i)) {
+          <div class="ins-message-timestamp" aria-live="off">
+            {{ formatTimestamp(message.timestamp) }}
+          </div>
+        }
+        
+        <mat-card class="ins-message-card" [class]="'ins-message-card--' + message.role">
+          <div class="ins-message-content">
+            @if (message.sensitive) {
+              <span class="ins-message-masked">
+                {{ maskContent(message.content, message.sensitive) }}
+              </span>
+            } @else {
+              <span [innerHTML]="message.content"></span>
+            }
+          </div>
+        </mat-card>
+        
+        @if (message.role === 'assistant') {
+          <div class="ins-message-role-label" aria-hidden="true">
+            Assistant
+          </div>
+        }
+      </div>
+    }
+    
+    @if (currentQuestion && !currentQuestion.isTerminal) {
+      <div class="ins-message ins-message--assistant ins-message--pending">
+        <div class="ins-message-timestamp">Now</div>
+        <mat-card class="ins-message-card ins-message-card--assistant">
+          <div class="ins-message-content">
+            <div class="ins-typing-indicator">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+            @if (currentQuestion.question) {
+              <p class="ins-question-prompt">
+                {{ currentQuestion.question.prompt }}
+              </p>
+            }
+          </div>
+        </mat-card>
+      </div>
+    }
+    
+    @empty {
+      <div class="ins-message-list-empty">
+        <p>No messages yet. The conversation will begin shortly.</p>
+      </div>
+    }
+  </div>
+  
+  <!-- ARIA live region for assistant messages -->
+  <div
+    aria-live="polite"
+    aria-atomic="false"
+    class="ins-sr-only"
+    #liveRegion
+    role="log"
+    aria-label="Chat messages">
+    @for (message of messages(); track message.id) {
+      @if (message.role === 'assistant') {
+        <span>{{ message.role }}: {{ message.content }}</span>
+      }
+    }
+  </div>
+  
+  <!-- Empty state announcement -->
+  @if (messages().length === 0) {
+    <div class="ins-sr-only" aria-live="polite">
+      Chat conversation starting. No messages yet.
+    </div>
+  }
+</div>
+

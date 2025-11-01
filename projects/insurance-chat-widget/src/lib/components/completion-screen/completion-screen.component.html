@@ -1,0 +1,31 @@
+<div class="ins-completion-container">
+  <mat-card class="ins-completion-card">
+    <div class="ins-completion-icon">
+      <mat-icon>check_circle</mat-icon>
+    </div>
+    
+    <h2 class="ins-completion-title">{{ title }}</h2>
+    
+    <p class="ins-completion-message">{{ message }}</p>
+    
+    <div class="ins-completion-details">
+      <p>You can review your responses in the Transcript tab.</p>
+      <p style="font-size: 13px; color: #666; margin-top: 8px;">
+        Your interview data has been submitted successfully.
+      </p>
+    </div>
+
+    @if (showCloseButton) {
+      <div class="ins-completion-actions">
+        <button
+          mat-raised-button
+          color="primary"
+          (click)="onClose()"
+          [attr.aria-label]="'Close widget'">
+          Close
+        </button>
+      </div>
+    }
+  </mat-card>
+</div>
+

@@ -1,0 +1,105 @@
+<div class="ins-input-bar-container">
+  <!-- Hint Row -->
+  @if (showHint() && question?.helpText) {
+    <div class="ins-input-hint" [attr.aria-describedby]="'hint-' + question?.id">
+      <mat-icon class="ins-hint-icon">info</mat-icon>
+      <span [id]="'hint-' + question?.id">{{ question.helpText }}</span>
+    </div>
+  }
+
+  <!-- Partial Transcript Display -->
+  @if (partialTranscript() && isVoiceMode()) {
+    <div class="ins-partial-transcript" [attr.aria-live]="'polite'">
+      <mat-icon class="ins-partial-icon">auto_awesome</mat-icon>
+      <span class="ins-partial-text">{{ partialTranscript() }}</span>
+    </div>
+  }
+
+  <!-- Input Form -->
+  <form [formGroup]="inputForm" (ngSubmit)="onSubmit()" class="ins-input-form">
+    <mat-form-field appearance="outline" class="ins-input-field">
+      <mat-label>{{ question?.prompt || 'Enter your answer' }}</mat-label>
+      
+      <input
+        matInput
+        formControlName="answer"
+        [type]="getInputType()"
+        [placeholder]="getPlaceholder()"
+        [attr.aria-describedby]="question?.helpText ? 'hint-' + question?.id : null"
+        (keydown.enter)="onEnterKey($event)"
+        (keydown.escape)="onEscapeKey($event)"
+        [disabled]="isLoading() || isVoiceMode()" />
+      
+          @if (showMicButton() && !isVoiceMode()) {
+            <button
+              matSuffix
+              mat-icon-button
+              type="button"
+              (click)="micStart.emit()"
+              [attr.aria-label]="'Start voice input. Press Alt V to activate.'"
+              [attr.title]="'Start voice input (Alt+V)'"
+              class="ins-mic-toggle">
+              <mat-icon aria-hidden="true">mic</mat-icon>
+            </button>
+          }
+
+      @if (inputForm.get('answer')?.invalid && inputForm.get('answer')?.touched) {
+        <mat-error>
+          {{ getErrorMessage() }}
+        </mat-error>
+      }
+      
+      @if (error && !inputForm.get('answer')?.errors) {
+        <mat-error>
+          {{ error }}
+        </mat-error>
+      }
+
+          @if (!isVoiceMode()) {
+            <button
+              matSuffix
+              mat-icon-button
+              type="submit"
+              [disabled]="!isFormValid()"
+              [attr.aria-label]="'Submit answer. Press Enter to submit.'"
+              [attr.title]="'Submit answer (Enter)'"
+              class="ins-submit-button">
+              <mat-icon aria-hidden="true">send</mat-icon>
+            </button>
+          }
+    </mat-form-field>
+
+    @if (isLoading()) {
+      <div class="ins-loading-indicator">
+        <span>Sending...</span>
+      </div>
+    }
+  </form>
+
+  <!-- Format Example -->
+  @if (question?.constraints?.mask && !isVoiceMode()) {
+    <div class="ins-format-example">
+      <span class="ins-format-label">Example:</span>
+      <span class="ins-format-value">{{ question.constraints.mask.replace(/#/g, '0') }}</span>
+    </div>
+  }
+  
+  <!-- Voice Mode Controls -->
+  @if (isVoiceMode()) {
+    <div class="ins-voice-controls">
+      <ins-mic-button
+        [disabled]="isLoading()"
+        [silenceTimeout]="5000"
+        (captureStart)="micStart.emit()"
+        (captureStop)="onVoiceStop()"
+        (captureCancel)="onVoiceCancel()"
+        (error)="errorMessage.set($event)" />
+      
+      <ins-vu-meter
+        [width]="200"
+        [height]="40"
+        [showNumeric]="false" />
+    </div>
+  }
+</div>
+

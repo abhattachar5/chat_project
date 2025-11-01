@@ -1,0 +1,24 @@
+<div class="ins-progress-container" [class.ins-progress--compact]="compact">
+  @if (showBar) {
+    <mat-progress-bar
+      [mode]="mode()"
+      [value]="percentage()"
+      [attr.aria-label]="'Interview progress: ' + percentage() + ' percent'"
+      class="ins-progress-bar">
+    </mat-progress-bar>
+  }
+
+  @if (showPercentage && progress() > 0) {
+    <mat-chip class="ins-progress-chip" [attr.aria-label]="percentage() + ' percent complete'">
+      <mat-icon class="ins-progress-icon">check_circle</mat-icon>
+      {{ percentage() }}%
+    </mat-chip>
+  }
+
+  @if (progress() === 0 && !compact) {
+    <span class="ins-progress-text" aria-live="polite">
+      Starting interview...
+    </span>
+  }
+</div>
+

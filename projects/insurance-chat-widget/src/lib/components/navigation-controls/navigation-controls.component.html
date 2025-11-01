@@ -1,0 +1,24 @@
+<div class="ins-navigation-controls">
+  <button
+    mat-icon-button
+    (click)="onBack()"
+    [disabled]="!canGoBack()"
+    [matTooltip]="getBackTooltip()"
+    [attr.aria-label]="'Go back to previous question'"
+    class="ins-nav-button ins-nav-button--back">
+    <mat-icon>arrow_back</mat-icon>
+  </button>
+
+  @if (allowForwardNav()) {
+    <button
+      mat-icon-button
+      (click)="onForward()"
+      [disabled]="!canGoForward()"
+      [matTooltip]="getForwardTooltip()"
+      [attr.aria-label]="'Go to next question'"
+      class="ins-nav-button ins-nav-button--forward">
+      <mat-icon>arrow_forward</mat-icon>
+    </button>
+  }
+</div>
+
