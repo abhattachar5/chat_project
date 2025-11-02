@@ -48,6 +48,29 @@
   }
 }
 
+.ins-privacy-notice {
+  margin-top: 16px;
+  padding: 12px;
+  background: #f5f5f5;
+  border-radius: 4px;
+  border-left: 3px solid #1976d2;
+
+  h3 {
+    color: #1976d2;
+    font-size: 14px;
+    font-weight: 500;
+    margin: 0 0 8px 0;
+  }
+
+  ul {
+    margin: 0;
+    padding-left: 20px;
+    line-height: 1.6;
+    font-size: 13px;
+    color: #666;
+  }
+}
+
 ::ng-deep .mat-mdc-dialog-actions {
   padding: 16px 24px;
   margin: 0;

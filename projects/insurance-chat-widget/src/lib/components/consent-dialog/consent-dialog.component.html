@@ -12,13 +12,32 @@
       <ul>
         <li><strong>Microphone:</strong> To capture your voice responses during the interview</li>
         <li><strong>Transcript:</strong> To store a record of your interview for compliance</li>
+        @if (includeDocumentProcessing) {
+          <li><strong>Medical Documents:</strong> To scan for conditions and speed up your application</li>
+          <li><strong>Document Processing:</strong> Your documents will be scanned for medical conditions and used for underwriting. Documents are retained per policy (default 7 years).</li>
+        }
       </ul>
+      
+      @if (includeDocumentProcessing) {
+        <div class="ins-privacy-notice">
+          <h3>Privacy & Data Protection:</h3>
+          <ul>
+            <li>Documents are processed securely with encryption</li>
+            <li>Personal identifiers are masked in evidence displays</li>
+            <li>Data is stored in UK/EU regions only</li>
+            <li>Documents are retained for 7 years (unless tenant policy specifies otherwise)</li>
+          </ul>
+        </div>
+      }
       
       <h3>Your options:</h3>
       <ul>
         <li>You can <strong>decline</strong> and continue with text-only mode</li>
-        <li>You can <strong>accept</strong> to enable voice input for a faster experience</li>
+        <li>You can <strong>accept</strong> to enable voice input @if (includeDocumentProcessing) { and document processing } for a faster experience</li>
         <li>You can switch between voice and text at any time</li>
+        @if (includeDocumentProcessing) {
+          <li>You can skip document upload and continue without it</li>
+        }
       </ul>
     </div>
   </mat-dialog-content>

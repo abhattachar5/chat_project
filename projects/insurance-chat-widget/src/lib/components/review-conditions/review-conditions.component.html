@@ -1,0 +1,303 @@
+<mat-card class="ins-review-card">
+  <mat-card-header>
+    <mat-card-title>
+      <mat-icon>assignment</mat-icon>
+      Review detected conditions
+    </mat-card-title>
+    <mat-card-subtitle>Based on your documents</mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <!-- Empty State -->
+    <div *ngIf="conditions.length === 0" class="ins-empty-state" aria-live="polite">
+      <p>We didn't detect any conditions. You can add one now or continue.</p>
+    </div>
+
+    <!-- High Confidence Conditions -->
+    <div *ngIf="highConfidenceConditions.length > 0" class="ins-conditions-group">
+      <h3 class="ins-group-title">Detected conditions</h3>
+      <mat-list class="ins-conditions-list">
+        <mat-list-item *ngFor="let condition of highConfidenceConditions" class="ins-condition-item">
+          <div class="ins-condition-content">
+            <!-- Checkbox -->
+            <mat-checkbox
+              [checked]="condition.isAccepted"
+              [indeterminate]="!condition.isAccepted && !condition.isRejected"
+              (change)="toggleCondition(condition, $event.checked)"
+              [attr.aria-label]="'Accept ' + condition.canonical.label"
+              class="ins-condition-checkbox"
+            ></mat-checkbox>
+
+            <!-- Condition Info -->
+            <div class="ins-condition-info">
+              <div class="ins-condition-header">
+                <span class="ins-condition-label">{{ condition.canonical.label }}</span>
+                <mat-chip [color]="getConfidenceColor(condition.confidence)" class="ins-confidence-chip">
+                  {{ formatConfidence(condition.confidence) }} confidence
+                </mat-chip>
+                <span *ngIf="condition.isManual" class="ins-manual-badge">Manual</span>
+              </div>
+
+              <div class="ins-condition-meta">
+                <span *ngIf="condition.originalTerm !== condition.canonical.label" class="ins-original-term">
+                  Originally: "{{ condition.originalTerm }}"
+                </span>
+                <span *ngIf="condition.status" class="ins-status">
+                  Status: {{ condition.status }}
+                </span>
+                <span *ngIf="condition.severity" class="ins-severity">
+                  Severity: {{ condition.severity }}
+                </span>
+                <span *ngIf="condition.onsetDate" class="ins-onset">
+                  Onset: {{ condition.onsetDate }}
+                </span>
+              </div>
+
+              <!-- Evidence Peek -->
+              <div *ngIf="condition.evidence" class="ins-evidence-section">
+                <mat-expansion-panel
+                  [expanded]="condition.showEvidence"
+                  (opened)="toggleEvidence(condition)"
+                  (closed)="toggleEvidence(condition)"
+                  class="ins-evidence-panel"
+                >
+                  <mat-expansion-panel-header>
+                    <mat-panel-title>
+                      <mat-icon>description</mat-icon>
+                      Evidence
+                    </mat-panel-title>
+                    <mat-panel-description>
+                      Page {{ condition.evidence.page }}
+                    </mat-panel-description>
+                  </mat-expansion-panel-header>
+
+                  <div class="ins-evidence-content">
+                    <div class="ins-phi-warning">
+                      <mat-icon>warning</mat-icon>
+                      <span>{{ redactionService.getPhiWarning() }}</span>
+                    </div>
+
+                    <div class="ins-evidence-snippet">
+                      <pre>{{ getEvidenceSnippet(condition) }}</pre>
+                    </div>
+
+                    <button
+                      mat-button
+                      (click)="toggleEvidenceMasking(condition)"
+                      class="ins-toggle-mask"
+                      *ngIf="condition.evidence.rawSnippet"
+                    >
+                      <mat-icon>{{ condition.evidenceMasked ? 'visibility' : 'visibility_off' }}</mat-icon>
+                      {{ condition.evidenceMasked ? 'Show unmasked' : 'Show masked' }}
+                    </button>
+                  </div>
+                </mat-expansion-panel>
+              </div>
+
+              <!-- Edit Section -->
+              <div *ngIf="editingConditions.has(condition.id)" class="ins-edit-section">
+                <div class="ins-edit-fields">
+                  <mat-form-field appearance="outline">
+                    <mat-label>Status</mat-label>
+                    <mat-select [(ngModel)]="condition.editedStatus">
+                      <mat-option value="active">Active</mat-option>
+                      <mat-option value="resolved">Resolved</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" *ngIf="condition.severity">
+                    <mat-label>Severity</mat-label>
+                    <input matInput [(ngModel)]="condition.editedSeverity" />
+                  </mat-form-field>
+
+                  <mat-form-field appearance="outline" *ngIf="condition.onsetDate">
+                    <mat-label>Onset Date</mat-label>
+                    <input matInput type="date" [(ngModel)]="condition.editedOnsetDate" />
+                  </mat-form-field>
+                </div>
+
+                <div class="ins-edit-actions">
+                  <button mat-button (click)="saveEdit(condition)">Save</button>
+                  <button mat-button (click)="cancelEdit(condition)">Cancel</button>
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="ins-condition-actions" *ngIf="!editingConditions.has(condition.id)">
+                <button
+                  mat-button
+                  (click)="editCondition(condition)"
+                  *ngIf="condition.isAccepted"
+                  class="ins-edit-button"
+                >
+                  <mat-icon>edit</mat-icon>
+                  Edit
+                </button>
+              </div>
+            </div>
+          </div>
+        </mat-list-item>
+      </mat-list>
+    </div>
+
+    <!-- Medium Confidence Conditions -->
+    <div *ngIf="mediumConfidenceConditions.length > 0" class="ins-conditions-group">
+      <h3 class="ins-group-title">Possible conditions</h3>
+      <mat-list class="ins-conditions-list">
+        <mat-list-item *ngFor="let condition of mediumConfidenceConditions" class="ins-condition-item">
+          <!-- Same structure as high confidence -->
+          <div class="ins-condition-content">
+            <mat-checkbox
+              [checked]="condition.isAccepted"
+              [indeterminate]="!condition.isAccepted && !condition.isRejected"
+              (change)="toggleCondition(condition, $event.checked)"
+              [attr.aria-label]="'Accept ' + condition.canonical.label"
+              class="ins-condition-checkbox"
+            ></mat-checkbox>
+
+            <div class="ins-condition-info">
+              <div class="ins-condition-header">
+                <span class="ins-condition-label">{{ condition.canonical.label }}</span>
+                <mat-chip [color]="getConfidenceColor(condition.confidence)" class="ins-confidence-chip">
+                  {{ formatConfidence(condition.confidence) }} confidence
+                </mat-chip>
+              </div>
+
+              <div class="ins-condition-meta">
+                <span *ngIf="condition.originalTerm !== condition.canonical.label" class="ins-original-term">
+                  Originally: "{{ condition.originalTerm }}"
+                </span>
+              </div>
+
+              <div *ngIf="condition.evidence" class="ins-evidence-section">
+                <mat-expansion-panel
+                  [expanded]="condition.showEvidence"
+                  (opened)="toggleEvidence(condition)"
+                  (closed)="toggleEvidence(condition)"
+                  class="ins-evidence-panel"
+                >
+                  <mat-expansion-panel-header>
+                    <mat-panel-title>
+                      <mat-icon>description</mat-icon>
+                      Evidence
+                    </mat-panel-title>
+                  </mat-expansion-panel-header>
+
+                  <div class="ins-evidence-content">
+                    <div class="ins-phi-warning">
+                      <mat-icon>warning</mat-icon>
+                      <span>{{ redactionService.getPhiWarning() }}</span>
+                    </div>
+                    <div class="ins-evidence-snippet">
+                      <pre>{{ getEvidenceSnippet(condition) }}</pre>
+                    </div>
+                  </div>
+                </mat-expansion-panel>
+              </div>
+            </div>
+          </div>
+        </mat-list-item>
+      </mat-list>
+    </div>
+
+    <!-- Low Confidence Conditions - Collapsed -->
+    <div *ngIf="lowConfidenceConditions.length > 0" class="ins-conditions-group">
+      <mat-expansion-panel class="ins-low-confidence-panel">
+        <mat-expansion-panel-header>
+          <mat-panel-title>
+            <mat-icon>help_outline</mat-icon>
+            Possible findings (need your review)
+          </mat-panel-title>
+          <mat-panel-description>
+            {{ lowConfidenceConditions.length }} item(s) with lower confidence
+          </mat-panel-description>
+        </mat-expansion-panel-header>
+
+        <mat-list class="ins-conditions-list">
+          <mat-list-item *ngFor="let condition of lowConfidenceConditions" class="ins-condition-item">
+            <div class="ins-condition-content">
+              <mat-checkbox
+                [checked]="condition.isAccepted"
+                [indeterminate]="!condition.isAccepted && !condition.isRejected"
+                (change)="toggleCondition(condition, $event.checked)"
+                [attr.aria-label]="'Accept ' + condition.canonical.label"
+                class="ins-condition-checkbox"
+              ></mat-checkbox>
+
+              <div class="ins-condition-info">
+                <div class="ins-condition-header">
+                  <span class="ins-condition-label">{{ condition.canonical.label }}?</span>
+                  <mat-chip [color]="getConfidenceColor(condition.confidence)" class="ins-confidence-chip">
+                    {{ formatConfidence(condition.confidence) }} confidence
+                  </mat-chip>
+                </div>
+
+                <div class="ins-condition-meta">
+                  <span class="ins-original-term">
+                    Originally: "{{ condition.originalTerm }}"
+                  </span>
+                </div>
+              </div>
+            </div>
+          </mat-list-item>
+        </mat-list>
+      </mat-expansion-panel>
+    </div>
+
+    <!-- Manual Condition Addition -->
+    <div class="ins-manual-add-section">
+      <h3 class="ins-group-title">
+        <mat-icon>add_circle</mat-icon>
+        Add another condition
+      </h3>
+
+      <mat-form-field appearance="outline" class="ins-search-field">
+        <mat-label>Search conditions</mat-label>
+        <input
+          matInput
+          [(ngModel)]="searchQuery"
+          (input)="onSearchChange($event.target?.value || '')"
+          [matAutocomplete]="auto"
+          placeholder="Type to search..."
+          [attr.aria-label]="'Search for medical conditions'"
+        />
+        <mat-autocomplete
+          #auto="matAutocomplete"
+          [displayWith]="displayFn"
+          (optionSelected)="addManualCondition($event.option.value)"
+        >
+          <mat-option
+            *ngFor="let result of searchResults"
+            [value]="result"
+            class="ins-search-option"
+          >
+            <div class="ins-option-content">
+              <div class="ins-option-label">{{ result.label }}</div>
+              <div class="ins-option-code">{{ result.code }}</div>
+              <div *ngIf="result.synonyms.length > 0" class="ins-option-synonyms">
+                Also known as: {{ result.synonyms.join(', ') }}
+              </div>
+            </div>
+          </mat-option>
+          <mat-option *ngIf="isSearching" disabled>
+            <span>Searching...</span>
+          </mat-option>
+          <mat-option *ngIf="!isSearching && searchResults.length === 0 && searchQuery.length >= 2" disabled>
+            <span>No results found</span>
+          </mat-option>
+        </mat-autocomplete>
+        <mat-icon matSuffix>search</mat-icon>
+      </mat-form-field>
+    </div>
+  </mat-card-content>
+
+  <mat-card-actions align="end">
+    <button mat-button (click)="onBack()" class="ins-button-back">
+      Back
+    </button>
+    <button mat-raised-button color="primary" (click)="onConfirm()" class="ins-button-confirm">
+      Confirm
+    </button>
+  </mat-card-actions>
+</mat-card>
+

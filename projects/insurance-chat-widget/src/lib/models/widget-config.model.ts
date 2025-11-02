@@ -84,6 +84,10 @@ export interface QuestionEnvelope {
   question: Question;
   ttsHint?: string;
   isTerminal?: boolean;
+  prefillContext?: {
+    confirmedConditions?: string[]; // Array of condition labels
+    adaptivePrompt?: string; // Pre-formatted prompt acknowledging conditions
+  };
 }
 
 export interface AnswerEnvelope {
@@ -94,6 +98,8 @@ export interface AnswerEnvelope {
   meta?: {
     asrConfidence?: number;
     rawAudioRef?: string;
+    source?: 'prefill' | 'text' | 'voice';
+    evidenceRefs?: string[]; // Format: "fileId:pageNumber"
   };
 }
 

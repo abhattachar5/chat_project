@@ -165,9 +165,9 @@ Before you start, make sure you have:
 
 ---
 
-### Step 9: Configure OpenAI (Optional - for Voice Features)
+### Step 9: Configure OpenAI (Optional - for Voice & Day 2 Features)
 
-**Only do this if you want to test voice features**
+**For voice features and Day 2 medical report extraction**
 
 1. Get an OpenAI API key:
    - Go to: https://platform.openai.com/api-keys
@@ -176,12 +176,22 @@ Before you start, make sure you have:
    - Copy the key (starts with `sk-...`)
    - **Important:** Save it somewhere safe - you won't see it again!
 
-2. On the demo website:
+2. Create `.env` file in the `demo` folder:
+   - Copy `.env.example` to `.env`: `cp .env.example .env` (Mac/Linux) or `copy .env.example .env` (Windows)
+   - Edit `.env` and add your API key:
+     ```
+     OPENAI_API_KEY=sk-your-key-here
+     ```
+
+3. On the demo website (for voice features):
    - Paste the key in the "OpenAI API Key" field
    - Click "Save OpenAI Key"
    - You should see a green success message
 
-**Note:** If you don't have an API key, you can still test the demo - voice features just won't work.
+**Note:** 
+- If you don't have an API key, voice features won't work
+- Day 2 features (medical report extraction) will use mock extraction without an API key
+- Mock extraction works for testing UI, but real OpenAI extraction is more accurate
 
 ---
 
@@ -198,7 +208,23 @@ Before you start, make sure you have:
 
 ---
 
-### Step 11: Complete the Interview
+### Step 11: (Optional) Upload Medical Document (Day 2 Feature)
+
+**New in Day 2: Upload medical documents for automatic condition detection**
+
+1. After initializing the widget, you'll see an option to upload medical documents
+2. Click "Upload Medical Document" or drag and drop a file
+3. Supported formats: PDF, JPG, PNG, DOCX (max 20MB)
+4. The system will:
+   - Extract text from your document (OCR)
+   - Detect medical conditions
+   - Show detected conditions for review
+5. Review and confirm/reject conditions
+6. Confirmed conditions will be prefilled in the interview
+
+**Note:** This step is optional - you can skip and proceed to the interview
+
+### Step 12: Complete the Interview
 
 1. The chat widget will open
 2. You'll be asked 10 questions:
@@ -208,7 +234,7 @@ Before you start, make sure you have:
    - Height
    - Weight
    - Smoking status
-   - Medical conditions
+   - Medical conditions (prefilled if you uploaded documents)
    - Annual income
    - Coverage amount
    - Insurance purpose
@@ -217,7 +243,10 @@ Before you start, make sure you have:
 
 4. Watch the progress indicator as you complete questions
 
-5. After all 10 questions, you'll receive a decision:
+5. If you uploaded documents, the medical conditions question will acknowledge detected conditions:
+   - Example: "We noted asthma and hypertension from your documents. Please confirm this and add any other conditions."
+
+6. After all 10 questions, you'll receive a decision:
    - **Accept** - Your application is approved
    - **Refer** - Requires manual review
    - **Reject** - Not approved
@@ -232,8 +261,11 @@ You've successfully set up the demo when:
 - [ ] Browser shows LifeGuard Insurance website
 - [ ] Chat widget icon appears in bottom-right corner
 - [ ] Chat widget opens when clicked
+- [ ] (Day 2) Medical document upload option appears
 - [ ] Questions load and display correctly
 - [ ] You can submit answers
+- [ ] (Day 2) Detected conditions are shown if document uploaded
+- [ ] (Day 2) Medical conditions question includes prefilled conditions
 - [ ] Decision appears after 10 questions
 
 ---

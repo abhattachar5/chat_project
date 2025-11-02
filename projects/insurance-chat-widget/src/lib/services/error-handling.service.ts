@@ -101,6 +101,93 @@ export class ErrorHandlingService {
       severity: 'error',
       action: 'retry',
     },
+
+    // Day 2 Phase 6: Intake-specific errors
+    // File upload errors
+    upload_error_400: {
+      message: 'Invalid file format. Please check the file and try again.',
+      retryable: true,
+      severity: 'error',
+      action: 'retry',
+    },
+    upload_error_413: {
+      message: 'File too large. Maximum size is 20MB. Please use a smaller file.',
+      retryable: false,
+      severity: 'error',
+      action: 'resize_file',
+    },
+    upload_error_415: {
+      message: 'Unsupported file type. Please use PDF, JPG, PNG, or DOCX.',
+      retryable: false,
+      severity: 'error',
+      action: 'convert_file',
+    },
+    upload_error_0: {
+      message: 'Upload failed. Please check your connection and try again.',
+      retryable: true,
+      severity: 'error',
+      action: 'retry',
+    },
+    upload_timeout: {
+      message: 'Upload timeout. Please check your connection and try again.',
+      retryable: true,
+      severity: 'warning',
+      action: 'retry',
+    },
+    too_many_files: {
+      message: 'Maximum 5 files allowed. Please remove some files and try again.',
+      retryable: false,
+      severity: 'error',
+      action: 'remove_files',
+    },
+
+    // Extraction errors
+    extraction_failed: {
+      message: 'Failed to extract conditions from document. Please try uploading again or continue without upload.',
+      retryable: true,
+      severity: 'warning',
+      action: 'retry_or_skip',
+    },
+    extraction_timeout: {
+      message: 'Extraction is taking longer than expected. You can wait or skip this step.',
+      retryable: true,
+      severity: 'warning',
+      action: 'wait_or_skip',
+    },
+    no_candidates_found: {
+      message: 'No medical conditions detected in your documents. You can continue with the interview.',
+      retryable: false,
+      severity: 'info',
+      action: 'continue',
+    },
+    low_confidence_candidates: {
+      message: 'Some conditions have low confidence. Please review carefully.',
+      retryable: false,
+      severity: 'warning',
+      action: 'review',
+    },
+
+    // Dictionary search errors
+    dictionary_search_failed: {
+      message: 'Search temporarily unavailable. You can add conditions manually.',
+      retryable: true,
+      severity: 'warning',
+      action: 'retry',
+    },
+
+    // Confirmation errors
+    confirmation_failed: {
+      message: 'Failed to save your selections. Please try again.',
+      retryable: true,
+      severity: 'error',
+      action: 'retry',
+    },
+    confirmation_validation_error: {
+      message: 'Please select at least one condition or add a new one.',
+      retryable: false,
+      severity: 'error',
+      action: 'select_condition',
+    },
   };
 
   // Current error state

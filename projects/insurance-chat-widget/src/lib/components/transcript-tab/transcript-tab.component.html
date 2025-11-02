@@ -81,6 +81,24 @@
             </div>
             <div class="ins-transcript-meta">
               <span class="ins-timestamp">{{ formatTimestamp(item.timestamp) }}</span>
+              @if (canEditRemove(item)) {
+                <button
+                  mat-icon-button
+                  (click)="editPrefillAnswer(item)"
+                  [matTooltip]="'Edit prefilled condition'"
+                  [attr.aria-label]="'Edit prefilled condition'"
+                  class="ins-edit-button">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button
+                  mat-icon-button
+                  (click)="removePrefillAnswer(item)"
+                  [matTooltip]="'Remove prefilled condition'"
+                  [attr.aria-label]="'Remove prefilled condition'"
+                  class="ins-remove-button">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              }
               <button
                 mat-icon-button
                 (click)="copyToClipboard(item)"
