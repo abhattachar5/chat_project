@@ -9,6 +9,7 @@ export interface ConsentDialogData {
   message?: string;
   acceptLabel?: string;
   declineLabel?: string;
+  includeDocumentProcessing?: boolean; // Day 2 Phase 4: Include document processing consent
 }
 
 export interface ConsentDialogResult {
@@ -27,11 +28,16 @@ export class ConsentDialogComponent {
   private dialogRef = inject(MatDialogRef<ConsentDialogComponent>);
   data = inject<ConsentDialogData>(MAT_DIALOG_DATA);
 
-  title = this.data?.title || 'Voice & Transcript Recording';
+  title = this.data?.title || (this.data?.includeDocumentProcessing 
+    ? 'Voice, Transcript & Document Processing' 
+    : 'Voice & Transcript Recording');
   message = this.data?.message || 
-    'With your permission, we\'ll use your microphone and store a transcript of this interview for compliance. You can continue by typing at any time.';
+    (this.data?.includeDocumentProcessing
+      ? 'With your permission, we\'ll use your microphone, store a transcript of this interview, and process any medical documents you upload for compliance and to speed up your application. You can continue by typing at any time.'
+      : 'With your permission, we\'ll use your microphone and store a transcript of this interview for compliance. You can continue by typing at any time.');
   acceptLabel = this.data?.acceptLabel || 'Accept';
   declineLabel = this.data?.declineLabel || 'Decline';
+  includeDocumentProcessing = this.data?.includeDocumentProcessing || false;
 
   accept(): void {
     const result: ConsentDialogResult = {

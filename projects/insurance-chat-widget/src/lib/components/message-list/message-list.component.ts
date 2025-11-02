@@ -11,13 +11,15 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
+import { MatChipsModule } from '@angular/material/chips';
 import { ChatMessage, MessageRole } from '../../models/message.model';
 import { QuestionEnvelope } from '../../models/widget-config.model';
+import { QuestionService } from '../../services/question.service';
 
 @Component({
   selector: 'ins-message-list',
   standalone: true,
-  imports: [CommonModule, ScrollingModule, MatCardModule, MatIconModule],
+  imports: [CommonModule, ScrollingModule, MatCardModule, MatIconModule, MatChipsModule],
   templateUrl: './message-list.component.html',
   styleUrls: ['./message-list.component.scss'],
 })
@@ -26,6 +28,7 @@ export class MessageListComponent implements OnInit, OnDestroy {
   @Input() currentQuestion: QuestionEnvelope | null = null;
 
   private cdr = inject(ChangeDetectorRef);
+  private questionService = inject(QuestionService);
   private scrollContainer: HTMLElement | null = null;
 
   ngOnInit(): void {
@@ -111,6 +114,46 @@ export class MessageListComponent implements OnInit, OnDestroy {
     }
     // Simple masking - replace characters with • except spaces and punctuation
     return content.replace(/[A-Za-z0-9]/g, '•');
+  }
+
+  /**
+   * Get adaptive prompt for current question
+   */
+  getAdaptivePrompt(): string | null {
+    return this.questionService.getAdaptivePrompt();
+  }
+
+  /**
+   * Get confirmed conditions for display
+   */
+  getConfirmedConditions(): string[] {
+    return this.questionService.getConfirmedConditions();
+  }
+
+  /**
+   * Check if current question has prefill context
+   */
+  hasPrefillContext(): boolean {
+    return this.questionService.hasPrefillContext();
+  }
+
+  /**
+   * Get display prompt (adaptive or standard)
+   */
+  getDisplayPrompt(): string {
+    const question = this.currentQuestion;
+    if (!question?.question) {
+      return '';
+    }
+
+    // Check for adaptive prompt
+    const adaptivePrompt = this.getAdaptivePrompt();
+    if (adaptivePrompt) {
+      return adaptivePrompt;
+    }
+
+    // Use standard prompt
+    return question.question.prompt;
   }
 }
 

@@ -1,0 +1,169 @@
+<mat-card class="ins-upload-card">
+  <mat-card-header>
+    <mat-card-title>
+      <mat-icon>cloud_upload</mat-icon>
+      Add medical documents (optional)
+    </mat-card-title>
+  </mat-card-header>
+
+  <mat-card-content>
+    <div class="ins-upload-intro">
+      <p>Upload GP letters, lab results, hospital discharge letters, or other medical documents.</p>
+      <p class="ins-upload-help">
+        We'll scan for conditions to speed up your application. You can review and edit anything before it's used.
+      </p>
+    </div>
+
+    <!-- Drag and Drop Area -->
+    <div 
+      class="ins-drop-zone"
+      [class.ins-dragging]="isDragging"
+      (click)="openFilePicker()"
+      (dragover)="onDragOver($event)"
+      (dragenter)="onDragEnter($event)"
+      (dragleave)="onDragLeave($event)"
+      (drop)="onDrop($event)"
+      role="button"
+      tabindex="0"
+      [attr.aria-label]="'Drop files here or click to choose files. Allowed types: ' + allowedTypes"
+      [attr.aria-describedby]="'upload-help'"
+      (keydown.enter)="openFilePicker()"
+      (keydown.space)="openFilePicker()"
+    >
+      <div class="ins-drop-content">
+        <mat-icon class="ins-drop-icon">cloud_upload</mat-icon>
+        <p class="ins-drop-text">Drop files here or <span class="ins-link">Choose files</span></p>
+        <p class="ins-drop-hint">
+          Allowed: {{ allowedTypes }} • Max {{ maxSizeMB }}MB per file
+        </p>
+      </div>
+    </div>
+
+    <!-- File Requirements Info -->
+    <div class="ins-upload-requirements" id="upload-help">
+      <mat-icon>info</mat-icon>
+      <span>
+        You can upload up to {{ maxFiles }} files. Each file must be under {{ maxSizeMB }}MB.
+        Supported formats: {{ allowedTypes }}.
+      </span>
+    </div>
+
+    <!-- Privacy Notice -->
+    <div class="ins-privacy-notice">
+      <mat-icon>security</mat-icon>
+      <div class="ins-privacy-content">
+        <h4>Privacy & Data Protection</h4>
+        <ul>
+          <li>Documents are processed securely with encryption</li>
+          <li>Personal identifiers are masked in evidence displays</li>
+          <li>Data is stored in UK/EU regions only</li>
+          <li>Documents are retained for 7 years (unless tenant policy specifies otherwise)</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- File List -->
+    <div class="ins-file-list" *ngIf="uploadFiles.length > 0">
+      <h3 class="ins-file-list-title">
+        <mat-icon>insert_drive_file</mat-icon>
+        Files
+      </h3>
+
+      <mat-list class="ins-file-list-items">
+        <mat-list-item *ngFor="let file of uploadFiles" class="ins-file-item">
+          <div class="ins-file-item-content">
+            <!-- File Icon and Info -->
+            <div class="ins-file-info">
+              <mat-icon class="ins-file-icon">{{ getFileIcon(file) }}</mat-icon>
+              <div class="ins-file-details">
+                <div class="ins-file-name">{{ file.file.name }}</div>
+                <div class="ins-file-meta">
+                  {{ formatFileSize(file.file.size) }}
+                  <span *ngIf="file.uploadedAt" class="ins-file-date">
+                    • Uploaded {{ file.uploadedAt | date:'short' }}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Status and Progress -->
+            <div class="ins-file-status">
+              <!-- Progress Bar -->
+              <mat-progress-bar 
+                *ngIf="file.status === 'uploading' || file.status === 'scanning'"
+                [value]="file.progress"
+                [mode]="file.progress === 100 ? 'indeterminate' : 'determinate'"
+                class="ins-file-progress"
+              ></mat-progress-bar>
+
+              <!-- Status Icon and Text -->
+              <div class="ins-file-status-info">
+                <mat-icon 
+                  [class]="'ins-status-icon ' + getStatusColor(file)"
+                  [attr.aria-label]="'Status: ' + file.status"
+                >
+                  {{ getStatusIcon(file) }}
+                </mat-icon>
+                <span class="ins-status-text">{{ getStatusText(file) }}</span>
+              </div>
+            </div>
+
+            <!-- Remove Button -->
+            <button 
+              mat-icon-button
+              (click)="removeFile(file.id)"
+              class="ins-file-remove"
+              [attr.aria-label]="'Remove ' + file.file.name"
+              *ngIf="file.status !== 'uploading'"
+            >
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+
+          <!-- Error Message -->
+          <div *ngIf="file.error" class="ins-file-error" role="alert">
+            <mat-icon>error</mat-icon>
+            <span>{{ file.error }}</span>
+          </div>
+        </mat-list-item>
+      </mat-list>
+    </div>
+
+    <!-- Empty State Message -->
+    <div *ngIf="uploadFiles.length === 0" class="ins-empty-state" aria-live="polite">
+      <p>No files uploaded yet. You can skip this step and continue without uploading documents.</p>
+    </div>
+  </mat-card-content>
+
+  <mat-card-actions align="end">
+    <button 
+      mat-button 
+      (click)="onSkip()"
+      class="ins-button-skip"
+      [attr.aria-label]="'Skip file upload and continue'"
+    >
+      Skip for now
+    </button>
+    <button 
+      mat-raised-button 
+      color="primary"
+      (click)="onContinue()"
+      class="ins-button-continue"
+      [disabled]="uploadFiles.length === 0"
+      [attr.aria-label]="'Continue with uploaded files'"
+    >
+      Continue
+    </button>
+  </mat-card-actions>
+</mat-card>
+
+<!-- Hidden file input for programmatic access -->
+<input 
+  type="file"
+  #fileInput
+  multiple
+  accept=".pdf,.jpg,.jpeg,.png,.docx"
+  style="display: none"
+  (change)="onFileSelected($event)"
+>
+

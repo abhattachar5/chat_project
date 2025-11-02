@@ -106,5 +106,126 @@ export class AnalyticsService {
       errorMessage,
     } as AnalyticsEvent);
   }
+
+  // Day 2 Phase 4: Intake Audit Events
+
+  /**
+   * Audit event: Upload started
+   */
+  intakeUploadStarted(sessionId: string, fileId?: string): void {
+    this.emit({
+      event: 'intake.upload_started',
+      sessionId,
+      fileId,
+    } as AnalyticsEvent);
+  }
+
+  /**
+   * Audit event: Upload finished
+   */
+  intakeUploadFinished(sessionId: string, fileId: string, durationMs?: number): void {
+    this.emit({
+      event: 'intake.upload_finished',
+      sessionId,
+      fileId,
+      duration_ms: durationMs,
+    } as AnalyticsEvent);
+  }
+
+  /**
+   * Audit event: Upload failed
+   */
+  intakeUploadFailed(sessionId: string, fileId: string, errorCode: string, errorMessage: string): void {
+    this.emit({
+      event: 'intake.upload_failed',
+      sessionId,
+      fileId,
+      errorCode,
+      errorMessage,
+    } as AnalyticsEvent);
+  }
+
+  /**
+   * Audit event: Extraction started
+   */
+  intakeExtractStarted(sessionId: string, fileId: string): void {
+    this.emit({
+      event: 'intake.extract_started',
+      sessionId,
+      fileId,
+    } as AnalyticsEvent);
+  }
+
+  /**
+   * Audit event: Extraction finished
+   */
+  intakeExtractFinished(sessionId: string, fileId: string, durationMs?: number, candidateCount?: number): void {
+    this.emit({
+      event: 'intake.extract_finished',
+      sessionId,
+      fileId,
+      duration_ms: durationMs,
+      candidateCount,
+    } as AnalyticsEvent);
+  }
+
+  /**
+   * Audit event: Candidates presented
+   */
+  intakeCandidatesPresented(sessionId: string, candidateCount: number, averageConfidence?: number): void {
+    this.emit({
+      event: 'intake.candidates_presented',
+      sessionId,
+      candidateCount,
+      averageConfidence,
+    } as AnalyticsEvent);
+  }
+
+  /**
+   * Audit event: Condition confirmed
+   */
+  intakeConfirmed(sessionId: string, candidateId: string, conditionCode: string): void {
+    this.emit({
+      event: 'intake.confirmed',
+      sessionId,
+      candidateId,
+      conditionCode,
+    } as AnalyticsEvent);
+  }
+
+  /**
+   * Audit event: Condition rejected
+   */
+  intakeRejected(sessionId: string, candidateId: string, conditionCode: string): void {
+    this.emit({
+      event: 'intake.rejected',
+      sessionId,
+      candidateId,
+      conditionCode,
+    } as AnalyticsEvent);
+  }
+
+  /**
+   * Audit event: Manual condition added
+   */
+  intakeManualAdd(sessionId: string, conditionCode: string, conditionLabel: string): void {
+    this.emit({
+      event: 'intake.manual_add',
+      sessionId,
+      conditionCode,
+      conditionLabel,
+    } as AnalyticsEvent);
+  }
+
+  /**
+   * Audit event: Prefill submitted
+   */
+  intakePrefillSubmitted(sessionId: string, prefillCount: number): void {
+    this.emit({
+      event: 'intake.prefill_submitted',
+      sessionId,
+      prefillCount,
+    } as AnalyticsEvent);
+  }
 }
 

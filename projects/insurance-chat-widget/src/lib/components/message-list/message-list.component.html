@@ -48,7 +48,14 @@
             </div>
             @if (currentQuestion.question) {
               <p class="ins-question-prompt">
-                {{ currentQuestion.question.prompt }}
+                {{ getDisplayPrompt() }}
+                @if (hasPrefillContext()) {
+                  <div class="ins-prefill-conditions" style="margin-top: 12px;">
+                    @for (condition of getConfirmedConditions(); track condition) {
+                      <mat-chip class="ins-condition-chip">{{ condition }}</mat-chip>
+                    }
+                  </div>
+                }
               </p>
             }
           </div>

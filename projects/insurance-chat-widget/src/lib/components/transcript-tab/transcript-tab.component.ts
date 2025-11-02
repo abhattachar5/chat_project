@@ -17,10 +17,16 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
+import { MatDialogModule } from '@angular/material/dialog';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { SessionService } from '../../services/session.service';
 import { ApiService } from '../../services/api.service';
+import { PrefillService } from '../../services/prefill.service';
+import { AnswerService } from '../../services/answer.service';
 import { Transcript, TranscriptItem } from '../../models/widget-config.model';
 import { Subscription } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 export type TranscriptFilter = 'all' | 'user' | 'assistant' | 'system';
 
@@ -38,6 +44,8 @@ export type TranscriptFilter = 'all' | 'user' | 'assistant' | 'system';
     MatButtonModule,
     MatTooltipModule,
     MatChipsModule,
+    MatDialogModule,
+    MatSnackBarModule,
   ],
   templateUrl: './transcript-tab.component.html',
   styleUrls: ['./transcript-tab.component.scss'],
@@ -45,6 +53,10 @@ export type TranscriptFilter = 'all' | 'user' | 'assistant' | 'system';
 export class TranscriptTabComponent implements OnInit, OnDestroy {
   private sessionService = inject(SessionService);
   private apiService = inject(ApiService);
+  private prefillService = inject(PrefillService);
+  private answerService = inject(AnswerService);
+  private dialog = inject(MatDialog);
+  private snackBar = inject(MatSnackBar);
   private subscriptions = new Subscription();
 
   // Transcript data
@@ -233,6 +245,63 @@ export class TranscriptTabComponent implements OnInit, OnDestroy {
       return this.getMaskedText(item.text);
     }
     return item.text;
+  }
+
+  /**
+   * Check if item is a prefill answer
+   */
+  isPrefillAnswer(item: TranscriptItem): boolean {
+    // Check if item has prefill metadata (this would come from the transcript)
+    // For now, we'll check if the item text contains prefill indicators
+    // In production, the transcript item would have metadata indicating source
+    return item.role === 'user' && (item as any).meta?.source === 'prefill';
+  }
+
+  /**
+   * Check if item can be edited/removed
+   */
+  canEditRemove(item: TranscriptItem): boolean {
+    // Only prefill answers can be edited/removed
+    // And only if we're still in the interview (not completed)
+    const session = this.sessionService.session();
+    return this.isPrefillAnswer(item) && session?.status !== 'completed';
+  }
+
+  /**
+   * Edit a prefill answer
+   */
+  editPrefillAnswer(item: TranscriptItem): void {
+    // This would open a dialog to edit the prefill
+    // For now, show a message
+    this.snackBar.open('Edit prefill functionality - to be implemented with dialog', 'Close', {
+      duration: 3000,
+    });
+    
+    // TODO: Open edit dialog
+    // TODO: Resubmit edited answer
+    // TODO: Update transcript
+  }
+
+  /**
+   * Remove a prefill answer
+   */
+  removePrefillAnswer(item: TranscriptItem): void {
+    // Find the prefill answer and remove it
+    // This would typically require the questionId from the transcript item
+    const questionId = (item as any).questionId;
+    
+    if (questionId) {
+      this.prefillService.removePrefillAnswer(questionId);
+      
+      // Show confirmation
+      this.snackBar.open('Prefilled condition removed', 'Close', {
+        duration: 3000,
+      });
+    } else {
+      this.snackBar.open('Cannot remove: question ID not found', 'Close', {
+        duration: 3000,
+      });
+    }
   }
 
   /**

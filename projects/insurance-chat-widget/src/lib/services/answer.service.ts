@@ -21,7 +21,12 @@ export class AnswerService {
     questionId: string,
     answer: string | number | boolean | string[] | Record<string, unknown>,
     inputMode: 'text' | 'voice' | 'file' = 'text',
-    meta?: { asrConfidence?: number; rawAudioRef?: string }
+    meta?: { 
+      asrConfidence?: number; 
+      rawAudioRef?: string;
+      source?: 'prefill' | 'text' | 'voice';
+      evidenceRefs?: string[];
+    }
   ): Observable<QuestionEnvelope> {
     const sessionId = this.sessionService.sessionId();
     if (!sessionId) {
@@ -35,7 +40,11 @@ export class AnswerService {
       answer,
       inputMode,
       timestamp: new Date().toISOString(),
-      meta,
+      meta: {
+        ...meta,
+        // Ensure source is set if provided
+        source: meta?.source || (inputMode === 'file' ? 'prefill' : inputMode),
+      },
     };
 
     return this.apiService.submitAnswer(sessionId, answerEnvelope).pipe(

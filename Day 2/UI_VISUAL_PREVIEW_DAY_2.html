@@ -1,0 +1,1227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Day 2 UI Preview - Medical Report Upload</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+      background: #f5f5f5;
+      padding: 2rem;
+    }
+    
+    .preview-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background: white;
+      padding: 2rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    h1 {
+      color: #0D47A1;
+      margin-bottom: 1rem;
+    }
+    
+    h2 {
+      color: #1976D2;
+      margin-bottom: 0.5rem;
+    }
+    
+    .demo-section {
+      margin: 2rem 0;
+      padding: 1.5rem;
+      background: #f9f9f9;
+      border-radius: 4px;
+      border-left: 4px solid #0D47A1;
+    }
+    
+    .widget-preview {
+      position: relative;
+      min-height: 600px;
+      background: white;
+      border: 2px dashed #ddd;
+      border-radius: 8px;
+      padding: 2rem;
+      margin: 2rem 0;
+    }
+
+    /* Upload Card Styles */
+    .upload-card {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    .upload-card-header {
+      padding: 24px 24px 16px;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .upload-card-title {
+      font-size: 20px;
+      font-weight: 500;
+      color: #1976d2;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .upload-card-content {
+      padding: 24px;
+    }
+
+    .upload-intro {
+      margin-bottom: 24px;
+    }
+
+    .upload-intro p {
+      margin: 0 0 12px 0;
+      line-height: 1.6;
+      color: #333;
+    }
+
+    .upload-help {
+      color: #666;
+      font-size: 14px;
+    }
+
+    /* Drag and Drop Zone */
+    .drop-zone {
+      border: 2px dashed #ddd;
+      border-radius: 8px;
+      padding: 48px 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: #fafafa;
+      margin-bottom: 16px;
+    }
+
+    .drop-zone:hover {
+      border-color: #1976d2;
+      background: #f0f7ff;
+    }
+
+    .drop-zone.dragging {
+      border-color: #1976d2;
+      background: #e3f2fd;
+      border-style: solid;
+    }
+
+    .drop-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .drop-icon {
+      font-size: 48px;
+      color: #1976d2;
+    }
+
+    .drop-text {
+      font-size: 16px;
+      font-weight: 500;
+      color: #333;
+      margin: 0;
+    }
+
+    .drop-link {
+      color: #1976d2;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    .drop-hint {
+      font-size: 13px;
+      color: #666;
+      margin: 0;
+    }
+
+    .upload-requirements {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 12px;
+      background: #f5f5f5;
+      border-radius: 4px;
+      font-size: 13px;
+      color: #666;
+      margin-bottom: 24px;
+    }
+
+    .upload-requirements-icon {
+      font-size: 18px;
+      color: #1976d2;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    /* File List */
+    .file-list {
+      margin-top: 24px;
+      margin-bottom: 24px;
+    }
+
+    .file-list-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      color: #333;
+      margin: 0 0 16px 0;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .file-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 12px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .file-item:last-child {
+      border-bottom: none;
+    }
+
+    .file-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+    }
+
+    .file-icon {
+      color: #666;
+      font-size: 24px;
+    }
+
+    .file-details {
+      flex: 1;
+    }
+
+    .file-name {
+      font-weight: 500;
+      color: #333;
+      font-size: 14px;
+    }
+
+    .file-meta {
+      font-size: 12px;
+      color: #666;
+      margin-top: 4px;
+    }
+
+    .file-status {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+      min-width: 150px;
+    }
+
+    .file-progress {
+      width: 150px;
+      height: 4px;
+      background: #e0e0e0;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+
+    .file-progress-bar {
+      height: 100%;
+      background: #1976d2;
+      transition: width 0.3s;
+    }
+
+    .file-status-info {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .status-icon {
+      font-size: 20px;
+      color: #1976d2;
+    }
+
+    .status-icon.warn {
+      color: #ff9800;
+    }
+
+    .status-icon.error {
+      color: #f44336;
+    }
+
+    .status-icon.success {
+      color: #4caf50;
+    }
+
+    .status-text {
+      font-size: 12px;
+      color: #666;
+      text-transform: capitalize;
+    }
+
+    .file-remove {
+      background: transparent;
+      border: none;
+      color: #666;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+    }
+
+    .file-remove:hover {
+      background: #f5f5f5;
+    }
+
+    .file-error {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #f44336;
+      font-size: 12px;
+      margin-top: 8px;
+      padding-left: 44px;
+    }
+
+    .empty-state {
+      padding: 24px;
+      text-align: center;
+      color: #666;
+      font-size: 14px;
+      background: #f9f9f9;
+      border-radius: 4px;
+      margin: 24px 0;
+    }
+
+    .upload-card-actions {
+      padding: 16px 24px;
+      border-top: 1px solid #e0e0e0;
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+    }
+
+    .button-skip {
+      padding: 10px 20px;
+      background: transparent;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      color: #666;
+      cursor: pointer;
+      font-size: 14px;
+    }
+
+    .button-skip:hover {
+      background: #f5f5f5;
+    }
+
+    .button-continue {
+      padding: 10px 20px;
+      background: #0D47A1;
+      border: none;
+      border-radius: 4px;
+      color: white;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .button-continue:hover {
+      background: #1565C0;
+    }
+
+    .button-continue:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 500;
+      margin-left: 8px;
+    }
+
+    .badge-day2 {
+      background: #ff9800;
+      color: white;
+    }
+
+    .badge-new {
+      background: #9c27b0;
+      color: white;
+    }
+
+    .state-indicator {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 1rem;
+    }
+
+    .state-active {
+      background: #e8f5e9;
+      color: #388e3c;
+    }
+
+    /* Icons */
+    .icon {
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
+    }
+  </style>
+</head>
+<body>
+  <div class="preview-container">
+    <h1>🏥 Insurance Chat Widget - Day 2 UI Preview</h1>
+    <p style="color: #666; margin-bottom: 2rem;">Medical Report Upload & Prefill Feature - Phase 1: Upload & File Management</p>
+    
+    <div class="demo-section">
+      <h2>Medical Report Upload Screen <span class="badge badge-day2">Day 2 - Phase 1</span></h2>
+      <span class="state-indicator state-active">UPLOAD AFTER CONSENT</span>
+      <p>This screen appears after the consent dialog (after consent is accepted). Users can optionally upload medical documents to speed up their application.</p>
+      
+      <div class="widget-preview">
+        <!-- Upload Card -->
+        <div class="upload-card">
+          <!-- Header -->
+          <div class="upload-card-header">
+            <div class="upload-card-title">
+              <span style="font-size: 24px;">📄</span>
+              <span>Add medical documents (optional)</span>
+            </div>
+          </div>
+
+          <!-- Content -->
+          <div class="upload-card-content">
+            <!-- Intro -->
+            <div class="upload-intro">
+              <p>Upload GP letters, lab results, hospital discharge letters, or other medical documents.</p>
+              <p class="upload-help">
+                We'll scan for conditions to speed up your application. You can review and edit anything before it's used.
+              </p>
+            </div>
+
+            <!-- Drag and Drop Zone -->
+            <div class="drop-zone" role="button" tabindex="0" aria-label="Drop files here or click to choose files">
+              <div class="drop-content">
+                <div class="drop-icon" style="font-size: 48px;">☁️</div>
+                <p class="drop-text">Drop files here or <span class="drop-link">Choose files</span></p>
+                <p class="drop-hint">
+                  Allowed: PDF, JPG, PNG, DOCX • Max 20MB per file
+                </p>
+              </div>
+            </div>
+
+            <!-- Requirements Info -->
+            <div class="upload-requirements">
+              <span class="upload-requirements-icon">ℹ️</span>
+              <span>
+                You can upload up to 5 files. Each file must be under 20MB.
+                Supported formats: PDF, JPG, PNG, DOCX.
+              </span>
+            </div>
+
+            <!-- File List (Empty State) -->
+            <div class="empty-state" aria-live="polite">
+              <p>No files uploaded yet. You can skip this step and continue without uploading documents.</p>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="upload-card-actions">
+            <button class="button-skip">Skip for now</button>
+            <button class="button-continue" disabled>Continue</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Upload Screen - With Files <span class="badge badge-day2">Day 2 - Phase 1</span></h2>
+      <span class="state-indicator state-active">FILES UPLOADING</span>
+      <p>When files are added, they appear in a list with upload progress and status indicators.</p>
+      
+      <div class="widget-preview">
+        <!-- Upload Card with Files -->
+        <div class="upload-card">
+          <!-- Header -->
+          <div class="upload-card-header">
+            <div class="upload-card-title">
+              <span style="font-size: 24px;">📄</span>
+              <span>Add medical documents (optional)</span>
+            </div>
+          </div>
+
+          <!-- Content -->
+          <div class="upload-card-content">
+            <!-- Intro -->
+            <div class="upload-intro">
+              <p>Upload GP letters, lab results, hospital discharge letters, or other medical documents.</p>
+              <p class="upload-help">
+                We'll scan for conditions to speed up your application. You can review and edit anything before it's used.
+              </p>
+            </div>
+
+            <!-- Drag and Drop Zone -->
+            <div class="drop-zone">
+              <div class="drop-content">
+                <div class="drop-icon" style="font-size: 48px;">☁️</div>
+                <p class="drop-text">Drop files here or <span class="drop-link">Choose files</span></p>
+                <p class="drop-hint">
+                  Allowed: PDF, JPG, PNG, DOCX • Max 20MB per file
+                </p>
+              </div>
+            </div>
+
+            <!-- File List -->
+            <div class="file-list">
+              <h3 class="file-list-title">
+                <span style="font-size: 20px;">📁</span>
+                <span>Files</span>
+              </h3>
+
+              <!-- File Item 1: Uploading -->
+              <div class="file-item">
+                <div class="file-info">
+                  <span class="file-icon">📄</span>
+                  <div class="file-details">
+                    <div class="file-name">asthma_report.pdf</div>
+                    <div class="file-meta">2.4 MB</div>
+                  </div>
+                </div>
+                <div class="file-status">
+                  <div class="file-progress">
+                    <div class="file-progress-bar" style="width: 65%;"></div>
+                  </div>
+                  <div class="file-status-info">
+                    <span class="status-icon">☁️</span>
+                    <span class="status-text">Uploading 65%</span>
+                  </div>
+                </div>
+                <button class="file-remove" style="visibility: hidden;">×</button>
+              </div>
+
+              <!-- File Item 2: Scanning -->
+              <div class="file-item">
+                <div class="file-info">
+                  <span class="file-icon">🏥</span>
+                  <div class="file-details">
+                    <div class="file-name">nhs_letter.jpg</div>
+                    <div class="file-meta">1.8 MB • Uploaded just now</div>
+                  </div>
+                </div>
+                <div class="file-status">
+                  <div class="file-progress" style="display: none;"></div>
+                  <div class="file-status-info">
+                    <span class="status-icon" style="color: #00bcd4;">🔍</span>
+                    <span class="status-text">Scanning...</span>
+                  </div>
+                </div>
+                <button class="file-remove">×</button>
+              </div>
+
+              <!-- File Item 3: Ready -->
+              <div class="file-item">
+                <div class="file-info">
+                  <span class="file-icon">📋</span>
+                  <div class="file-details">
+                    <div class="file-name">lab_results.pdf</div>
+                    <div class="file-meta">3.2 MB • Uploaded 2m ago</div>
+                  </div>
+                </div>
+                <div class="file-status">
+                  <div class="file-status-info">
+                    <span class="status-icon success">✓</span>
+                    <span class="status-text">Ready</span>
+                  </div>
+                </div>
+                <button class="file-remove">×</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="upload-card-actions">
+            <button class="button-skip">Skip for now</button>
+            <button class="button-continue">Continue</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>File Status Indicators <span class="badge badge-day2">Day 2 - Phase 1</span></h2>
+      <span class="state-indicator state-active">STATUS TRACKING</span>
+      <p>Files progress through different states with visual indicators:</p>
+      
+      <div style="background: white; padding: 1.5rem; border-radius: 4px; margin-top: 1rem;">
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px;">
+          <!-- Queued -->
+          <div class="file-item" style="border: 1px solid #e0e0e0; border-radius: 4px; padding: 12px;">
+            <div class="file-status-info">
+              <span class="status-icon warn">⏱️</span>
+              <span class="status-text">Queued</span>
+            </div>
+            <div style="font-size: 11px; color: #666; margin-top: 4px;">Waiting to upload</div>
+          </div>
+
+          <!-- Uploading -->
+          <div class="file-item" style="border: 1px solid #e0e0e0; border-radius: 4px; padding: 12px;">
+            <div class="file-progress" style="margin-bottom: 8px;">
+              <div class="file-progress-bar" style="width: 45%;"></div>
+            </div>
+            <div class="file-status-info">
+              <span class="status-icon">☁️</span>
+              <span class="status-text">Uploading 45%</span>
+            </div>
+          </div>
+
+          <!-- Scanning -->
+          <div class="file-item" style="border: 1px solid #e0e0e0; border-radius: 4px; padding: 12px;">
+            <div class="file-status-info">
+              <span class="status-icon" style="color: #00bcd4;">🔍</span>
+              <span class="status-text">Scanning...</span>
+            </div>
+            <div style="font-size: 11px; color: #666; margin-top: 4px;">Virus scan & OCR</div>
+          </div>
+
+          <!-- Extracted -->
+          <div class="file-item" style="border: 1px solid #e0e0e0; border-radius: 4px; padding: 12px;">
+            <div class="file-status-info">
+              <span class="status-icon success">✓</span>
+              <span class="status-text">Ready</span>
+            </div>
+            <div style="font-size: 11px; color: #666; margin-top: 4px;">Extraction complete</div>
+          </div>
+
+          <!-- Failed -->
+          <div class="file-item" style="border: 1px solid #e0e0e0; border-radius: 4px; padding: 12px;">
+            <div class="file-status-info">
+              <span class="status-icon error">⚠️</span>
+              <span class="status-text">Failed</span>
+            </div>
+            <div style="font-size: 11px; color: #f44336; margin-top: 4px;">Upload error</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Error States <span class="badge badge-day2">Day 2 - Phase 1</span></h2>
+      <span class="state-indicator state-active">ERROR HANDLING</span>
+      <p>User-friendly error messages for validation failures:</p>
+      
+      <div style="background: white; padding: 1.5rem; border-radius: 4px; margin-top: 1rem;">
+        <div style="display: flex; flex-direction: column; gap: 16px;">
+          <!-- Unsupported Type -->
+          <div style="padding: 12px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px;">
+            <strong>⚠️ Unsupported File Type</strong>
+            <p style="margin: 8px 0 0 0; font-size: 13px; color: #856404;">
+              That file type isn't supported. Please use PDF, JPG, PNG, or DOCX.
+            </p>
+          </div>
+
+          <!-- Too Large -->
+          <div style="padding: 12px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px;">
+            <strong>⚠️ File Too Large</strong>
+            <p style="margin: 8px 0 0 0; font-size: 13px; color: #856404;">
+              This file exceeds 20MB. Try a smaller file or compress the document.
+            </p>
+          </div>
+
+          <!-- Too Many Files -->
+          <div style="padding: 12px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px;">
+            <strong>⚠️ Too Many Files</strong>
+            <p style="margin: 8px 0 0 0; font-size: 13px; color: #856404;">
+              You can only upload up to 5 files. Please remove some files before adding more.
+            </p>
+          </div>
+
+          <!-- Upload Failed -->
+          <div style="padding: 12px; background: #f8d7da; border: 1px solid #f44336; border-radius: 4px;">
+            <strong>❌ Upload Failed</strong>
+            <p style="margin: 8px 0 0 0; font-size: 13px; color: #721c24;">
+              Network error. Please check your connection and try again.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Accessibility Features <span class="badge badge-day2">Day 2 - Phase 1</span></h2>
+      <span class="state-indicator state-active">WCAG 2.1 AA</span>
+      <p>All upload features are accessible:</p>
+      
+      <div style="background: white; padding: 1.5rem; border-radius: 4px; margin-top: 1rem;">
+        <ul style="list-style: none; padding: 0; line-height: 2;">
+          <li>✓ <strong>Keyboard Accessible:</strong> Drop zone accessible via Tab + Enter/Space</li>
+          <li>✓ <strong>ARIA Labels:</strong> All interactive elements have descriptive labels</li>
+          <li>✓ <strong>Live Regions:</strong> Status updates announced to screen readers</li>
+          <li>✓ <strong>Focus Indicators:</strong> 3px outline with sufficient contrast</li>
+          <li>✓ <strong>Error Announcements:</strong> Errors announced via aria-live regions</li>
+          <li>✓ <strong>File Information:</strong> File names, sizes, and statuses announced</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Day 2 Phase 1 Features Implemented</h2>
+      <ul style="list-style: none; padding: 0; line-height: 2;">
+        <li>✓ <strong>Medical Report Upload Component</strong> - Drag-and-drop file upload with Angular CDK</li>
+        <li>✓ <strong>File Upload Service</strong> - API integration for POST /v1/intake/files</li>
+        <li>✓ <strong>File Validation</strong> - Client-side validation for type, size, and count</li>
+        <li>✓ <strong>Upload Progress Tracking</strong> - Real-time progress bars and status indicators</li>
+        <li>✓ <strong>File Status Management</strong> - Queued, uploading, scanning, extracted, failed states</li>
+        <li>✓ <strong>Error Handling</strong> - User-friendly error messages for all failure scenarios</li>
+        <li>✓ <strong>File List Display</strong> - Visual list with icons, progress, and remove buttons</li>
+        <li>✓ <strong>Keyboard Accessibility</strong> - Full keyboard navigation support</li>
+        <li>✓ <strong>Screen Reader Support</strong> - ARIA labels and live regions</li>
+        <li>✓ <strong>Responsive Design</strong> - Works on desktop and mobile</li>
+      </ul>
+    </div>
+
+    <!-- Phase 2: Review & Confirmation UI -->
+    <div class="demo-section">
+      <h2>Review Detected Conditions Screen <span class="badge badge-day2">Day 2 - Phase 2</span></h2>
+      <span class="state-indicator state-active">CONDITIONS DETECTED</span>
+      <p>After files are uploaded and extracted, users review detected conditions with confidence scores and evidence snippets.</p>
+      
+      <div class="widget-preview">
+        <div class="upload-card" style="max-width: 800px;">
+          <div class="upload-card-header">
+            <div class="upload-card-title">
+              <span style="font-size: 24px;">📋</span>
+              <span>Review detected conditions</span>
+            </div>
+            <div style="font-size: 14px; color: #666; margin-top: 4px;">Based on your documents</div>
+          </div>
+
+          <div class="upload-card-content">
+            <!-- High Confidence Condition -->
+            <div style="margin: 24px 0;">
+              <h3 style="font-size: 16px; font-weight: 500; margin-bottom: 16px; border-bottom: 1px solid #e0e0e0; padding-bottom: 8px;">
+                Detected conditions
+              </h3>
+              
+              <div style="padding: 16px; background: #f9f9f9; border-radius: 8px; border-left: 3px solid #4caf50; margin-bottom: 12px;">
+                <div style="display: flex; gap: 12px; align-items: flex-start;">
+                  <input type="checkbox" checked style="margin-top: 4px;">
+                  <div style="flex: 1;">
+                    <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 8px; flex-wrap: wrap;">
+                      <span style="font-weight: 500; font-size: 16px;">Asthma</span>
+                      <span style="padding: 2px 8px; background: #1976d2; color: white; border-radius: 12px; font-size: 12px;">86% confidence</span>
+                    </div>
+                    <div style="font-size: 13px; color: #666; margin-bottom: 8px;">
+                      Originally: "asthma" • Status: active • Severity: mild • Onset: 2018-03-01
+                    </div>
+                    
+                    <!-- Evidence Peek -->
+                    <div style="margin-top: 12px; padding: 12px; background: white; border-radius: 4px; border: 1px solid #e0e0e0;">
+                      <div style="display: flex; align-items: flex-start; gap: 8px; padding: 8px; background: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; margin-bottom: 8px; font-size: 13px; color: #856404;">
+                        <span>⚠️</span>
+                        <span>This may include personal details. We mask identifiers by default.</span>
+                      </div>
+                      <div style="font-size: 12px; color: #666; margin-bottom: 4px;">Evidence (Page 2):</div>
+                      <pre style="margin: 0; padding: 8px; background: #f5f5f5; border-radius: 4px; font-size: 12px; line-height: 1.6;">Patient has a history of asthma since childhood...</pre>
+                      <button style="margin-top: 8px; padding: 4px 8px; font-size: 12px; border: 1px solid #ddd; background: white; border-radius: 4px; cursor: pointer;">
+                        👁️ Show unmasked
+                      </button>
+                    </div>
+                    
+                    <button style="margin-top: 8px; padding: 4px 12px; font-size: 12px; border: 1px solid #ddd; background: white; border-radius: 4px; cursor: pointer;">
+                      ✏️ Edit
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Medium Confidence Condition -->
+            <div style="margin: 24px 0;">
+              <h3 style="font-size: 16px; font-weight: 500; margin-bottom: 16px; border-bottom: 1px solid #e0e0e0; padding-bottom: 8px;">
+                Possible conditions
+              </h3>
+              
+              <div style="padding: 16px; background: #f9f9f9; border-radius: 8px; border-left: 3px solid #ff9800; margin-bottom: 12px;">
+                <div style="display: flex; gap: 12px; align-items: flex-start;">
+                  <input type="checkbox" style="margin-top: 4px;">
+                  <div style="flex: 1;">
+                    <div style="display: flex; gap: 12px; align-items: center; margin-bottom: 8px;">
+                      <span style="font-weight: 500; font-size: 16px;">Hypertension?</span>
+                      <span style="padding: 2px 8px; background: #ff9800; color: white; border-radius: 12px; font-size: 12px;">58% confidence</span>
+                    </div>
+                    <div style="font-size: 13px; color: #666;">
+                      Originally: "high blood pressure"
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Manual Condition Addition -->
+            <div style="margin: 32px 0; padding-top: 24px; border-top: 2px solid #e0e0e0;">
+              <h3 style="font-size: 16px; font-weight: 500; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
+                <span>➕</span>
+                <span>Add another condition</span>
+              </h3>
+              
+              <div style="margin-top: 12px;">
+                <input type="text" placeholder="Type to search..." style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                <div style="font-size: 12px; color: #666; margin-top: 4px;">Search for medical conditions in the dictionary</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="upload-card-actions">
+            <button class="button-skip">Back</button>
+            <button class="button-continue">Confirm</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Day 2 Phase 2 Features Implemented <span class="badge badge-day2">Day 2 - Phase 2</span></h2>
+      <ul style="list-style: none; padding: 0; line-height: 2;">
+        <li>✓ <strong>Review Conditions Component</strong> - Display detected conditions with confidence scores</li>
+        <li>✓ <strong>Intake Service</strong> - GET /v1/intake/summary API integration with polling</li>
+        <li>✓ <strong>Dictionary Service</strong> - GET /v1/dictionary/search API with debounced typeahead</li>
+        <li>✓ <strong>PHI Redaction Service</strong> - Mask NHS numbers, DOB, addresses, postcodes</li>
+        <li>✓ <strong>Evidence Peek Component</strong> - Expandable evidence with PHI masking</li>
+        <li>✓ <strong>Condition Accept/Reject</strong> - Checkbox controls for each condition</li>
+        <li>✓ <strong>Condition Edit</strong> - Edit status, severity, onset date</li>
+        <li>✓ <strong>Manual Condition Addition</strong> - Dictionary search with autocomplete</li>
+        <li>✓ <strong>Confidence Grouping</strong> - High, medium, low confidence groups</li>
+        <li>✓ <strong>Low Confidence Collapse</strong> - Expandable panel for low confidence findings</li>
+        <li>✓ <strong>Confirmation Submission</strong> - POST /v1/intake/confirmations API</li>
+        <li>✓ <strong>Accessibility</strong> - WCAG 2.1 AA compliant</li>
+      </ul>
+    </div>
+
+    <!-- Phase 3: Prefill & Interview Adaptation -->
+    <div class="demo-section">
+      <h2>Adaptive First Prompt <span class="badge badge-day2">Day 2 - Phase 3</span></h2>
+      <span class="state-indicator state-active">INTERVIEW WITH PREFILL</span>
+      <p>After confirming conditions, the first medical history question acknowledges the detected conditions.</p>
+      
+      <div class="widget-preview">
+        <div style="background: white; padding: 2rem; border-radius: 8px; max-width: 600px; margin: 0 auto;">
+          <!-- Chat Message with Adaptive Prompt -->
+          <div style="margin-bottom: 16px; padding: 16px; background: #f5f5f5; border-radius: 8px; border-left: 3px solid #1976d2;">
+            <div style="font-size: 11px; color: #666; margin-bottom: 8px;">Just now</div>
+            <div style="font-size: 14px; line-height: 1.6; color: #333;">
+              We noted <strong>Asthma</strong> from your documents. Please confirm this and add any other conditions you'd like to declare.
+            </div>
+            <div style="display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;">
+              <span style="padding: 4px 12px; background: #1976d2; color: white; border-radius: 12px; font-size: 12px; font-weight: 500;">
+                Asthma
+              </span>
+            </div>
+          </div>
+          
+          <!-- Input Area -->
+          <div style="padding: 16px; background: white; border-top: 1px solid #e0e0e0;">
+            <div style="display: flex; gap: 8px;">
+              <input type="text" placeholder="Type your response..." style="flex: 1; padding: 12px 16px; border: 1px solid #ddd; border-radius: 8px; font-size: 14px;">
+              <button style="width: 48px; height: 48px; background: #0D47A1; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 20px;">
+                ➤
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Prefilled Answer in Transcript <span class="badge badge-day2">Day 2 - Phase 3</span></h2>
+      <span class="state-indicator state-active">TRANSCRIPT VIEW</span>
+      <p>Prefilled answers appear in the transcript with edit/remove options.</p>
+      
+      <div style="background: white; padding: 1.5rem; border-radius: 4px; margin-top: 1rem;">
+        <!-- Transcript Item - Prefill -->
+        <div style="margin-bottom: 12px; padding: 12px; background: #f9f9f9; border-radius: 8px; border-left: 3px solid #4caf50;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 16px;">👤</span>
+              <span style="font-weight: 500; font-size: 14px;">You</span>
+              <span style="padding: 2px 6px; background: #e3f2fd; color: #1976d2; border-radius: 12px; font-size: 11px; display: flex; align-items: center; gap: 4px;">
+                📄 Prefill
+              </span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 11px; color: #666;">12 Jun 2025, 09:15</span>
+              <button style="width: 28px; height: 28px; border: none; background: transparent; cursor: pointer; color: #666; padding: 4px; border-radius: 4px;" title="Edit prefilled condition">
+                ✏️
+              </button>
+              <button style="width: 28px; height: 28px; border: none; background: transparent; cursor: pointer; color: #f44336; padding: 4px; border-radius: 4px;" title="Remove prefilled condition">
+                🗑️
+              </button>
+              <button style="width: 28px; height: 28px; border: none; background: transparent; cursor: pointer; color: #666; padding: 4px; border-radius: 4px;" title="Copy to clipboard">
+                📋
+              </button>
+            </div>
+          </div>
+          <p style="margin: 0; line-height: 1.6; font-size: 14px; color: #333;">
+            Asthma
+          </p>
+        </div>
+        
+        <!-- Transcript Item - Assistant Response -->
+        <div style="margin-bottom: 12px; padding: 12px; background: #f9f9f9; border-radius: 8px; border-left: 3px solid #4caf50;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 8px; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 16px;">🤖</span>
+              <span style="font-weight: 500; font-size: 14px;">Assistant</span>
+            </div>
+            <span style="font-size: 11px; color: #666;">12 Jun 2025, 09:16</span>
+          </div>
+          <p style="margin: 0; line-height: 1.6; font-size: 14px; color: #333;">
+            Thank you for confirming Asthma. Are there any other medical conditions you'd like to declare?
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Day 2 Phase 3 Features Implemented <span class="badge badge-day2">Day 2 - Phase 3</span></h2>
+      <ul style="list-style: none; padding: 0; line-height: 2;">
+        <li>✓ <strong>Prefill Service</strong> - Store and manage prefill answers from confirmation</li>
+        <li>✓ <strong>Adaptive First Prompt</strong> - QuestionService generates adaptive prompts</li>
+        <li>✓ <strong>AnswerEnvelope Enhancement</strong> - Added source and evidenceRefs to meta</li>
+        <li>✓ <strong>QuestionEnvelope Enhancement</strong> - Added prefillContext for adaptive prompts</li>
+        <li>✓ <strong>Prefill Answer Submission</strong> - Submit prefilled answers via AnswerService</li>
+        <li>✓ <strong>MessageList Integration</strong> - Display adaptive prompts with condition chips</li>
+        <li>✓ <strong>Edit/Remove in Transcript</strong> - Edit/remove buttons for prefilled answers</li>
+        <li>✓ <strong>Prefill State Management</strong> - Reactive state with Angular Signals</li>
+        <li>✓ <strong>Analytics Integration</strong> - Track prefill events (stored, removed, updated)</li>
+        <li>✓ <strong>Integration Points</strong> - Full integration with existing services</li>
+      </ul>
+    </div>
+
+    <!-- Phase 4: Security, Privacy & Compliance -->
+    <div class="demo-section">
+      <h2>Updated Consent Dialog <span class="badge badge-day2">Day 2 - Phase 4</span></h2>
+      <div class="widget-preview" style="min-height: 500px;">
+        <div class="upload-card" style="max-width: 500px; margin: 0 auto;">
+          <div class="upload-card-header">
+            <span style="font-size: 24px;">ℹ️</span>
+            <span style="font-size: 20px; font-weight: 500;">Voice, Transcript & Document Processing</span>
+          </div>
+          <div class="upload-card-content">
+            <p style="margin-bottom: 16px; line-height: 1.6;">
+              With your permission, we'll use your microphone, store a transcript of this interview, and process any medical documents you upload for compliance and to speed up your application. You can continue by typing at any time.
+            </p>
+            <div style="margin: 16px 0;">
+              <h3 style="font-size: 14px; font-weight: 500; margin-bottom: 8px;">What we'll use:</h3>
+              <ul style="margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.8;">
+                <li><strong>Microphone:</strong> To capture your voice responses during the interview</li>
+                <li><strong>Transcript:</strong> To store a record of your interview for compliance</li>
+                <li><strong>Medical Documents:</strong> To scan for conditions and speed up your application</li>
+                <li><strong>Document Processing:</strong> Your documents will be scanned for medical conditions and used for underwriting. Documents are retained per policy (default 7 years).</li>
+              </ul>
+            </div>
+            <div style="background: #f0f7ff; padding: 12px; border-radius: 4px; border-left: 3px solid #1976d2; margin: 16px 0;">
+              <h3 style="font-size: 14px; font-weight: 500; color: #1976d2; margin-bottom: 8px;">Privacy & Data Protection:</h3>
+              <ul style="margin: 0; padding-left: 20px; font-size: 13px; line-height: 1.6; color: #666;">
+                <li>Documents are processed securely with encryption</li>
+                <li>Personal identifiers are masked in evidence displays</li>
+                <li>Data is stored in UK/EU regions only</li>
+                <li>Documents are retained for 7 years (unless tenant policy specifies otherwise)</li>
+              </ul>
+            </div>
+            <div style="margin-top: 24px; display: flex; justify-content: flex-end; gap: 8px;">
+              <button style="padding: 8px 16px; border: 1px solid #ddd; background: white; border-radius: 4px; cursor: pointer;">Decline</button>
+              <button style="padding: 8px 16px; background: #1976d2; color: white; border: none; border-radius: 4px; cursor: pointer;">Accept</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Upload Screen with Privacy Notice <span class="badge badge-day2">Day 2 - Phase 4</span></h2>
+      <div class="widget-preview" style="min-height: 650px;">
+        <div class="upload-card" style="max-width: 600px; margin: 0 auto;">
+          <div class="upload-card-header">
+            <span style="font-size: 24px;">☁️</span>
+            <span style="font-size: 20px; font-weight: 500; color: #1976d2;">Add medical documents (optional)</span>
+          </div>
+          <div class="upload-card-content">
+            <div class="upload-intro">
+              <p>Upload GP letters, lab results, hospital discharge letters, or other medical documents.</p>
+              <p style="color: #666; font-size: 14px;">
+                We'll scan for conditions to speed up your application. You can review and edit anything before it's used.
+              </p>
+            </div>
+            <div class="drop-zone" style="text-align: center; padding: 48px 24px; border: 2px dashed #ddd; border-radius: 8px; background: #fafafa; margin-bottom: 16px;">
+              <div style="font-size: 48px; margin-bottom: 12px;">☁️</div>
+              <p style="font-size: 16px; font-weight: 500; margin-bottom: 8px;">
+                Drop files here or <span style="color: #1976d2; text-decoration: underline; cursor: pointer;">Choose files</span>
+              </p>
+              <p style="font-size: 13px; color: #666;">
+                Allowed: PDF, JPG, PNG, DOCX • Max 20MB per file
+              </p>
+            </div>
+            <div style="display: flex; align-items: flex-start; gap: 8px; padding: 12px; background: #f5f5f5; border-radius: 4px; font-size: 13px; color: #666; margin-bottom: 16px;">
+              <span style="font-size: 18px;">ℹ️</span>
+              <span>
+                You can upload up to 5 files. Each file must be under 20MB. Supported formats: PDF, JPG, PNG, DOCX.
+              </span>
+            </div>
+            <div style="display: flex; align-items: flex-start; gap: 12px; padding: 16px; background: #f0f7ff; border-radius: 4px; border-left: 3px solid #1976d2; margin-bottom: 24px;">
+              <span style="font-size: 20px; color: #1976d2;">🔒</span>
+              <div style="flex: 1;">
+                <h4 style="margin: 0 0 8px 0; font-size: 14px; font-weight: 500; color: #1976d2;">Privacy & Data Protection:</h4>
+                <ul style="margin: 0; padding-left: 20px; font-size: 13px; color: #666; line-height: 1.6;">
+                  <li>Documents are processed securely with encryption</li>
+                  <li>Personal identifiers are masked in evidence displays</li>
+                  <li>Data is stored in UK/EU regions only</li>
+                  <li>Documents are retained for 7 years (unless tenant policy specifies otherwise)</li>
+                </ul>
+              </div>
+            </div>
+            <div style="display: flex; justify-content: flex-end; gap: 8px; padding-top: 16px; border-top: 1px solid #e0e0e0;">
+              <button style="padding: 8px 16px; border: 1px solid #ddd; background: white; border-radius: 4px; cursor: pointer; color: #666;">Skip for now</button>
+              <button style="padding: 8px 16px; background: #1976d2; color: white; border: none; border-radius: 4px; cursor: pointer;" disabled>Continue</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Day 2 Phase 4 Features Implemented <span class="badge badge-day2">Day 2 - Phase 4</span></h2>
+      <ul style="list-style: none; padding: 0; line-height: 2;">
+        <li>✓ <strong>Security Service</strong> - PHI handling, TLS validation, storage cleanup</li>
+        <li>✓ <strong>Audit Logging</strong> - Complete audit trail for all intake events</li>
+        <li>✓ <strong>Consent Dialog Enhancement</strong> - Document processing consent</li>
+        <li>✓ <strong>Privacy Notice</strong> - Added to upload screen</li>
+        <li>✓ <strong>Upload Audit Events</strong> - Upload started, finished, failed</li>
+        <li>✓ <strong>Extraction Audit Events</strong> - Extract started, finished, candidates presented</li>
+        <li>✓ <strong>Confirmation Audit Events</strong> - Confirmed, rejected, manual add</li>
+        <li>✓ <strong>Prefill Audit Events</strong> - Prefill submitted</li>
+        <li>✓ <strong>Data Residency Checks</strong> - Client-side validation for UK/EU regions</li>
+        <li>✓ <strong>PHI Security</strong> - No localStorage/sessionStorage for PHI</li>
+      </ul>
+    </div>
+
+    <!-- Phase 5: Testing & Polish -->
+    <div class="demo-section">
+      <h2>Day 2 Phase 5 Features Implemented <span class="badge badge-day2">Day 2 - Phase 5</span></h2>
+      <ul style="list-style: none; padding: 0; line-height: 2;">
+        <li>✓ <strong>Unit Tests for Services</strong> - Comprehensive tests for all Day 2 services</li>
+        <li>✓ <strong>FileUploadService Tests</strong> - File validation, upload flow, error handling</li>
+        <li>✓ <strong>IntakeService Tests</strong> - Extraction summary, polling, confirmations</li>
+        <li>✓ <strong>DictionaryService Tests</strong> - Search, caching, error handling</li>
+        <li>✓ <strong>PrefillService Tests</strong> - Prefill management, submission, error handling</li>
+        <li>✓ <strong>PhiRedactionService Tests</strong> - PHI pattern redaction, options handling</li>
+        <li>✓ <strong>SecurityService Tests</strong> - Security validation, data residency, storage cleanup</li>
+        <li>✓ <strong>Test Coverage</strong> - ≥80% coverage for all services</li>
+        <li>✓ <strong>Integration Test Scenarios</strong> - Documented test scenarios for complete flows</li>
+        <li>✓ <strong>Testing Documentation</strong> - Comprehensive testing guide</li>
+      </ul>
+    </div>
+
+    <div class="demo-section">
+      <h2>Testing Summary <span class="badge badge-day2">Day 2 - Phase 5</span></h2>
+      <div style="background: white; padding: 1.5rem; border-radius: 4px; margin-top: 1rem;">
+        <div style="font-family: monospace; line-height: 1.8; font-size: 13px;">
+          <div><strong>Unit Test Files:</strong></div>
+          <div>  - file-upload.service.spec.ts (15+ test cases)</div>
+          <div>  - intake.service.spec.ts (10+ test cases)</div>
+          <div>  - dictionary.service.spec.ts (5+ test cases)</div>
+          <div>  - prefill.service.spec.ts (10+ test cases)</div>
+          <div>  - phi-redaction.service.spec.ts (10+ test cases)</div>
+          <div>  - security.service.spec.ts (8+ test cases)</div>
+          <div></div>
+          <div><strong>Test Coverage:</strong></div>
+          <div>  - Total Test Cases: 60+</div>
+          <div>  - Services Covered: 6</div>
+          <div>  - Coverage Target: ≥80%</div>
+          <div></div>
+          <div><strong>Test Framework:</strong></div>
+          <div>  - Jasmine/Karma</div>
+          <div>  - HttpClientTestingModule</div>
+          <div>  - TestBed with dependency injection</div>
+          <div></div>
+          <div><strong>Integration Test Scenarios:</strong></div>
+          <div>  - Upload → Extraction → Review → Confirmation</div>
+          <div>  - Error recovery scenarios</div>
+          <div>  - Dictionary search integration</div>
+          <div>  - Prefill answer submission</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phase 6: Error Handling Refinement & Polish -->
+    <div class="demo-section">
+      <h2>Day 2 Phase 6 Features Implemented <span class="badge badge-day2">Day 2 - Phase 6</span></h2>
+      <ul style="list-style: none; padding: 0; line-height: 2;">
+        <li>✓ <strong>Enhanced Error Handling</strong> - Intake-specific error codes and messages</li>
+        <li>✓ <strong>User-Friendly Error Messages</strong> - Clear, actionable error messages</li>
+        <li>✓ <strong>Recovery Options</strong> - Clear actions for all error scenarios</li>
+        <li>✓ <strong>Accessibility Documentation</strong> - WCAG 2.1 AA compliance guide</li>
+        <li>✓ <strong>Performance Documentation</strong> - Optimization strategies and targets</li>
+        <li>✓ <strong>Browser Compatibility Guide</strong> - Cross-browser support documentation</li>
+        <li>✓ <strong>Error Handling Guide</strong> - Comprehensive error handling patterns</li>
+        <li>✓ <strong>Accessibility Guide</strong> - Keyboard navigation and screen reader support</li>
+        <li>✓ <strong>Performance Guide</strong> - Performance targets and optimizations</li>
+        <li>✓ <strong>Browser Compatibility Guide</strong> - Browser support matrix</li>
+      </ul>
+    </div>
+
+    <div class="demo-section">
+      <h2>Error Handling & Polish Summary <span class="badge badge-day2">Day 2 - Phase 6</span></h2>
+      <div style="background: white; padding: 1.5rem; border-radius: 4px; margin-top: 1rem;">
+        <div style="font-family: monospace; line-height: 1.8; font-size: 13px;">
+          <div><strong>Error Codes Added:</strong></div>
+          <div>  - Upload Errors: 6 error codes</div>
+          <div>  - Extraction Errors: 4 error codes</div>
+          <div>  - Dictionary Errors: 1 error code</div>
+          <div>  - Confirmation Errors: 2 error codes</div>
+          <div></div>
+          <div><strong>Error Characteristics:</strong></div>
+          <div>  - User-friendly messages</div>
+          <div>  - Context-aware</div>
+          <div>  - Recovery options provided</div>
+          <div>  - Severity levels appropriate</div>
+          <div></div>
+          <div><strong>Accessibility:</strong></div>
+          <div>  - WCAG 2.1 AA compliant</div>
+          <div>  - Keyboard navigation documented</div>
+          <div>  - Screen reader support documented</div>
+          <div>  - Focus management documented</div>
+          <div></div>
+          <div><strong>Performance:</strong></div>
+          <div>  - Dictionary search debouncing (300ms)</div>
+          <div>  - Dictionary search caching</div>
+          <div>  - Extraction polling optimized (2s interval)</div>
+          <div>  - Component rendering optimized</div>
+          <div></div>
+          <div><strong>Browser Compatibility:</strong></div>
+          <div>  - Chrome 90+, Edge 90+, Firefox 88+, Safari 14+</div>
+          <div>  - iOS Safari 14+, Chrome Android 90+</div>
+          <div>  - Drag-and-drop fallback for mobile</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Technical Implementation</h2>
+      <div style="background: white; padding: 1.5rem; border-radius: 4px; margin-top: 1rem;">
+        <div style="font-family: monospace; line-height: 1.8; font-size: 13px;">
+          <div><strong>Components:</strong></div>
+          <div>  - MedicalReportUploadComponent (standalone)</div>
+          <div>  - FileUploadService (provided in root)</div>
+          <div></div>
+          <div><strong>Models:</strong></div>
+          <div>  - UploadFile interface</div>
+          <div>  - UploadResponse interface</div>
+          <div>  - FileValidationResult interface</div>
+          <div></div>
+          <div><strong>APIs:</strong></div>
+          <div>  - POST /v1/intake/files (multipart/form-data)</div>
+          <div></div>
+          <div><strong>Features:</strong></div>
+          <div>  - Drag-and-drop using Angular CDK</div>
+          <div>  - File validation (type, size, count)</div>
+          <div>  - Progress tracking with HttpEventType</div>
+          <div>  - Error handling with retry logic</div>
+          <div>  - Accessibility (WCAG 2.1 AA)</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Phase 2 Technical Implementation</h2>
+      <div style="background: white; padding: 1.5rem; border-radius: 4px; margin-top: 1rem;">
+        <div style="font-family: monospace; line-height: 1.8; font-size: 13px;">
+          <div><strong>Components:</strong></div>
+          <div>  - ReviewConditionsComponent (standalone)</div>
+          <div></div>
+          <div><strong>Services:</strong></div>
+          <div>  - IntakeService (extraction summary, confirmations)</div>
+          <div>  - DictionaryService (impairment search)</div>
+          <div>  - PhiRedactionService (PHI masking)</div>
+          <div></div>
+          <div><strong>Models:</strong></div>
+          <div>  - CandidateCondition interface</div>
+          <div>  - ExtractionSummary interface</div>
+          <div>  - ConfirmationPayload interface</div>
+          <div>  - DictionarySearchResult interface</div>
+          <div></div>
+          <div><strong>APIs:</strong></div>
+          <div>  - GET /v1/intake/summary?sessionId=...</div>
+          <div>  - POST /v1/intake/confirmations</div>
+          <div>  - GET /v1/dictionary/search?q=...</div>
+          <div></div>
+          <div><strong>Features:</strong></div>
+          <div>  - Polling for extraction status (2s intervals, max 60s)</div>
+          <div>  - Debounced typeahead search (300ms)</div>
+          <div>  - PHI redaction (NHS numbers, DOB, addresses)</div>
+          <div>  - Confidence-based grouping</div>
+          <div>  - Edit/reject/accept functionality</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-section">
+      <h2>Phase 3 Technical Implementation</h2>
+      <div style="background: white; padding: 1.5rem; border-radius: 4px; margin-top: 1rem;">
+        <div style="font-family: monospace; line-height: 1.8; font-size: 13px;">
+          <div><strong>Services:</strong></div>
+          <div>  - PrefillService (prefill management)</div>
+          <div>  - QuestionService (enhanced with adaptive prompts)</div>
+          <div>  - AnswerService (enhanced with prefill support)</div>
+          <div></div>
+          <div><strong>Models Enhanced:</strong></div>
+          <div>  - AnswerEnvelope (added source, evidenceRefs in meta)</div>
+          <div>  - QuestionEnvelope (added prefillContext)</div>
+          <div></div>
+          <div><strong>Components Enhanced:</strong></div>
+          <div>  - MessageListComponent (adaptive prompt display)</div>
+          <div>  - TranscriptTabComponent (edit/remove prefills)</div>
+          <div></div>
+          <div><strong>Features:</strong></div>
+          <div>  - Prefill answer storage and management</div>
+          <div>  - Adaptive prompt generation</div>
+          <div>  - Prefill answer submission</div>
+          <div>  - Edit/remove prefilled conditions</div>
+          <div>  - Reactive state with Angular Signals</div>
+          <div>  - Analytics integration</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+
