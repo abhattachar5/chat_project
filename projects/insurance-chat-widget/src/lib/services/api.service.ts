@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError, timer } from 'rxjs';
-import { retry, catchError, mergeMap } from 'rxjs/operators';
+import { retry, catchError, map } from 'rxjs/operators';
 import { WidgetConfigService } from './widget-config.service';
 import { IdempotencyService } from './idempotency.service';
 import {
@@ -34,6 +34,11 @@ export class ApiService {
     const config = this.configService.getConfig();
     if (!config) {
       throw new Error('Widget not initialized. Call InsuranceChatWidget.init() first.');
+    }
+
+    // If custom API URL is provided, use it (for demo/testing)
+    if (config.apiBaseUrl) {
+      return config.apiBaseUrl;
     }
 
     // In production, this would come from tenant configuration
@@ -78,7 +83,7 @@ export class ApiService {
     return this.http.post<Session>(url, request, { headers }).pipe(
       retry({
         count: 3,
-        delay: (error: HttpErrorResponse, retryCount: number) => {
+        delay: (_error: HttpErrorResponse, retryCount: number) => {
           // Exponential backoff: 1s, 2s, 4s
           const delay = Math.pow(2, retryCount) * 1000;
           return timer(delay);
@@ -125,7 +130,16 @@ export class ApiService {
     const url = `${this.getBaseUrl()}/v1/sessions/${sessionId}/answers`;
     const headers = this.getHeaders(true);
 
-    return this.http.post<QuestionEnvelope>(url, answer, { headers }).pipe(catchError(this.handleError));
+    return this.http.post<{ accepted: boolean; nextQuestion: QuestionEnvelope & { progress?: number } }>(url, answer, { headers }).pipe(
+      map((response) => {
+        const envelope = response.nextQuestion;
+        return {
+          ...envelope,
+          sessionId, // Ensure sessionId is included
+        };
+      }),
+      catchError(this.handleError)
+    );
   }
 
   /**

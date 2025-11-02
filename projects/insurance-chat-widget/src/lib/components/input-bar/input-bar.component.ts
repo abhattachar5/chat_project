@@ -7,6 +7,8 @@ import {
   inject,
   signal,
   effect,
+  runInInjectionContext,
+  Injector,
 } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractControl } from '@angular/forms';
 import { CommonModule } from '@angular/common';
@@ -38,7 +40,7 @@ import { VUMeterComponent } from '../vu-meter/vu-meter.component';
 })
 export class InputBarComponent implements OnInit {
   @Input() question: Question | null = null;
-  @Input() isLoading = signal(false);
+  @Input() isLoading: boolean = false;
   @Input() error: string | null = null;
   @Input() partialTranscript = signal<string | null>(null);
   @Input() showMicButton = signal(false);
@@ -48,6 +50,7 @@ export class InputBarComponent implements OnInit {
   @Output() micStop = new EventEmitter<void>();
 
   private fb = inject(FormBuilder);
+  private injector = inject(Injector);
   inputForm!: FormGroup;
 
   // Signals for UI state
@@ -59,11 +62,13 @@ export class InputBarComponent implements OnInit {
   ngOnInit(): void {
     this.initializeForm();
     
-    // React to question changes
-    effect(() => {
-      if (this.question) {
-        this.updateFormForQuestion(this.question);
-      }
+    // React to question changes - must run in injection context
+    runInInjectionContext(this.injector, () => {
+      effect(() => {
+        if (this.question) {
+          this.updateFormForQuestion(this.question);
+        }
+      }, { allowSignalWrites: true });
     });
   }
 
@@ -81,12 +86,25 @@ export class InputBarComponent implements OnInit {
    */
   private updateFormForQuestion(question: Question): void {
     const constraints = question.constraints || {};
-    const validators = this.buildValidators(constraints);
+    const validators = this.buildValidators(question.type, constraints);
 
     const control = this.inputForm.get('answer');
     if (control) {
+      // Clear previous value and errors
+      control.setValue('');
+      control.clearValidators();
       control.setValidators(validators);
       control.updateValueAndValidity();
+      
+      // Reset touched state to avoid showing errors immediately
+      control.markAsUntouched();
+      
+      // Handle disabled state properly using form control
+      if (this.isLoading || this.isVoiceMode()) {
+        control.disable();
+      } else {
+        control.enable();
+      }
     }
 
     // Show hint if helpText exists
@@ -101,20 +119,33 @@ export class InputBarComponent implements OnInit {
   /**
    * Build validators from constraints
    */
-  private buildValidators(constraints: QuestionConstraints): Array<(control: AbstractControl) => { [key: string]: any } | null> {
+  private buildValidators(questionType: string | undefined, constraints: QuestionConstraints): Array<(control: AbstractControl) => { [key: string]: any } | null> {
     const validators: Array<(control: AbstractControl) => { [key: string]: any } | null> = [];
 
     if (constraints.required) {
       validators.push(Validators.required);
     }
 
-    if (constraints.min !== undefined) {
-      validators.push(Validators.min(constraints.min));
+    // Only apply min/max validators based on question type
+    if (questionType === 'number') {
+      // For number types, use min/max for numeric value validation
+      if (constraints.min !== undefined) {
+        validators.push(Validators.min(constraints.min));
+      }
+      if (constraints.max !== undefined) {
+        validators.push(Validators.max(constraints.max));
+      }
+    } else if (questionType === 'text' || questionType === 'textarea') {
+      // For text types, use minLength/maxLength for string length validation
+      if (constraints.min !== undefined) {
+        validators.push(Validators.minLength(constraints.min));
+      }
+      if (constraints.max !== undefined) {
+        validators.push(Validators.maxLength(constraints.max));
+      }
     }
-
-    if (constraints.max !== undefined) {
-      validators.push(Validators.max(constraints.max));
-    }
+    // For date, selectOne, selectMany, etc., don't apply min/max validators
+    // They only use pattern validation if specified
 
     if (constraints.pattern) {
       validators.push(Validators.pattern(constraints.pattern));
@@ -127,7 +158,7 @@ export class InputBarComponent implements OnInit {
    * Handle form submission
    */
   onSubmit(): void {
-    if (this.inputForm.invalid || this.isLoading()) {
+    if (this.inputForm.invalid || this.isLoading) {
       return;
     }
 
@@ -195,12 +226,63 @@ export class InputBarComponent implements OnInit {
       return 'This field is required';
     }
     if (control.errors['min']) {
-      return `Minimum value is ${this.question?.constraints?.min}`;
+      // Get min value from error object or question constraints
+      const minError = control.errors['min'];
+      const minValue = (minError && typeof minError === 'object' && 'min' in minError) 
+        ? minError.min 
+        : this.question?.constraints?.min;
+      if (minValue !== undefined && minValue !== null) {
+        return this.question?.type === 'number' 
+          ? `Minimum value is ${minValue}`
+          : `Minimum length is ${minValue} characters`;
+      }
+      return this.question?.type === 'number' 
+        ? 'Value is below the minimum'
+        : 'Text is too short';
     }
     if (control.errors['max']) {
-      return `Maximum value is ${this.question?.constraints?.max}`;
+      // Get max value from error object or question constraints
+      const maxError = control.errors['max'];
+      const maxValue = (maxError && typeof maxError === 'object' && 'max' in maxError)
+        ? maxError.max
+        : this.question?.constraints?.max;
+      if (maxValue !== undefined && maxValue !== null) {
+        return this.question?.type === 'number'
+          ? `Maximum value is ${maxValue}`
+          : `Maximum length is ${maxValue} characters`;
+      }
+      return this.question?.type === 'number'
+        ? 'Value is above the maximum'
+        : 'Text is too long';
+    }
+    if (control.errors['minlength']) {
+      const minLengthError = control.errors['minlength'];
+      const minLength = (minLengthError && typeof minLengthError === 'object' && 'requiredLength' in minLengthError)
+        ? minLengthError.requiredLength
+        : this.question?.constraints?.min;
+      if (minLength !== undefined && minLength !== null) {
+        return `Minimum length is ${minLength} characters`;
+      }
+      return 'Text is too short';
+    }
+    if (control.errors['maxlength']) {
+      const maxLengthError = control.errors['maxlength'];
+      const maxLength = (maxLengthError && typeof maxLengthError === 'object' && 'requiredLength' in maxLengthError)
+        ? maxLengthError.requiredLength
+        : this.question?.constraints?.max;
+      if (maxLength !== undefined && maxLength !== null) {
+        return `Maximum length is ${maxLength} characters`;
+      }
+      return 'Text is too long';
     }
     if (control.errors['pattern']) {
+      // Provide more helpful message for pattern errors
+      if (this.question?.type === 'date') {
+        return 'Invalid date format. Please use DD/MM/YYYY';
+      }
+      if (this.question?.constraints?.mask) {
+        return `Invalid format. Expected format: ${this.question.constraints.mask.replace(/#/g, '0')}`;
+      }
       return 'Invalid format';
     }
 
@@ -211,7 +293,7 @@ export class InputBarComponent implements OnInit {
    * Check if form is valid
    */
   isFormValid(): boolean {
-    return this.inputForm.valid && !this.isLoading();
+    return this.inputForm.valid && !this.isLoading;
   }
 
   /**
@@ -229,6 +311,16 @@ export class InputBarComponent implements OnInit {
     }
 
     return 'Type your answer...';
+  }
+
+  /**
+   * Get format example from mask
+   */
+  getFormatExample(): string {
+    if (!this.question?.constraints?.mask) {
+      return '';
+    }
+    return this.question.constraints.mask.replace(/#/g, '0');
   }
 
   /**

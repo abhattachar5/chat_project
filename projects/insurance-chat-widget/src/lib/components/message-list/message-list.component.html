@@ -56,12 +56,12 @@
       </div>
     }
     
-    @empty {
+    @if (messages().length === 0 && !currentQuestion) {
       <div class="ins-message-list-empty">
         <p>No messages yet. The conversation will begin shortly.</p>
       </div>
     }
-  </div>
+  </cdk-virtual-scroll-viewport>
   
   <!-- ARIA live region for assistant messages -->
   <div

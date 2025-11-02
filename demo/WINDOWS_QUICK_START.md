@@ -98,7 +98,24 @@ This is a Windows-specific guide with exact commands for Command Prompt (CMD).
 
 ---
 
-## Step 6: Start Angular App
+## Step 6: Install Angular Dependencies
+
+1. **First, install the project dependencies:**
+   ```
+   npm install
+   ```
+   Wait 2-3 minutes. You'll see lots of text scrolling.
+
+2. When finished, you'll see:
+   ```
+   added XXX packages
+   ```
+
+3. **Important:** This step only needs to be done once. If you've already run `npm install` in this folder, you can skip to Step 7.
+
+---
+
+## Step 7: Start Angular App
 
 1. Type:
    ```
@@ -116,7 +133,7 @@ This is a Windows-specific guide with exact commands for Command Prompt (CMD).
 
 ---
 
-## Step 7: Open Browser
+## Step 8: Open Browser
 
 1. Open any web browser (Chrome, Edge, Firefox)
 
@@ -129,7 +146,7 @@ This is a Windows-specific guide with exact commands for Command Prompt (CMD).
 
 ---
 
-## Step 8: Start Chat Widget
+## Step 9: Start Chat Widget
 
 1. On the website, click **"Initialize Chat Widget"**
 
@@ -172,6 +189,16 @@ This is a Windows-specific guide with exact commands for Command Prompt (CMD).
    netstat -ano | findstr :4200
    ```
 2. Stop it using `taskkill` (see above)
+
+### Issue: 'ng' is not recognized as an internal or external command
+**Fix:**
+1. You need to install project dependencies first:
+   ```
+   npm install
+   ```
+2. Wait for installation to complete (2-3 minutes)
+3. Then try `npm start` again
+4. **Important:** Make sure you're in the `chat_project` folder (not the `demo` folder) when running `npm install`
 
 ---
 

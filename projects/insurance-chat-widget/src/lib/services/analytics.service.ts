@@ -11,7 +11,7 @@ export class AnalyticsService {
   /**
    * Emit an analytics event to the host-provided callback
    */
-  emit(event: Omit<AnalyticsEvent, 'timestamp'>): void {
+  emit(event: Partial<AnalyticsEvent> & Pick<AnalyticsEvent, 'event'>): void {
     const config = this.configService.getConfig();
     
     if (!config?.analytics) {
@@ -21,8 +21,8 @@ export class AnalyticsService {
 
     const fullEvent: AnalyticsEvent = {
       ...event,
-      timestamp: new Date().toISOString(),
-    };
+      timestamp: event.timestamp || new Date().toISOString(),
+    } as AnalyticsEvent;
 
     try {
       config.analytics(fullEvent);
@@ -68,7 +68,7 @@ export class AnalyticsService {
       // Store additional data in event payload
       partialText: text,
       confidence,
-    } as AnalyticsEvent);
+    });
   }
 
   asrFinal(sessionId: string, utteranceId: string, text: string, confidence?: number): void {
@@ -79,7 +79,7 @@ export class AnalyticsService {
       inputMode: 'voice',
       finalText: text,
       confidence,
-    } as AnalyticsEvent);
+    });
   }
 
   ttsStart(sessionId: string, questionId: string): void {
@@ -104,7 +104,7 @@ export class AnalyticsService {
       sessionId,
       errorCode,
       errorMessage,
-    } as AnalyticsEvent);
+    });
   }
 }
 

@@ -3,7 +3,7 @@
   [color]="getColor()"
   [class]="'ins-mic-button ins-mic-button--' + state()"
   [class.ins-mic-button--pulse]="shouldPulse()"
-  [disabled]="disabled() || state() === 'processing'"
+  [disabled]="disabled || state() === 'processing'"
   (mousedown)="onPress()"
   (mouseup)="onRelease()"
   (mouseleave)="onRelease()"
@@ -12,7 +12,7 @@
   [attr.aria-label]="getTooltip()"
   [attr.aria-pressed]="state() === 'listening'"
   [matTooltip]="getTooltip()"
-  matTooltipPosition="top">
+  [matTooltipPosition]="'above'">
   
   @if (state() === 'processing') {
     <mat-spinner diameter="24" class="ins-mic-spinner"></mat-spinner>

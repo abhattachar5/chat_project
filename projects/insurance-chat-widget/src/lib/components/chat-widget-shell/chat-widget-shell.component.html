@@ -23,16 +23,28 @@
         <span class="ins-spacer" aria-hidden="true"></span>
         <button 
           mat-icon-button 
+          (click)="refresh()" 
+          aria-label="Refresh chat widget"
+          matTooltip="Refresh"
+          [matTooltipPosition]="'below'">
+          <mat-icon>refresh</mat-icon>
+        </button>
+        <button 
+          mat-icon-button 
           (click)="toggleMinimize()" 
           aria-label="Minimize chat widget"
-          [attr.aria-expanded]="isExpanded()">
-          <mat-icon aria-hidden="true">remove</mat-icon>
+          [attr.aria-expanded]="isExpanded()"
+          matTooltip="Minimize"
+          [matTooltipPosition]="'below'">
+          <mat-icon>remove</mat-icon>
         </button>
         <button 
           mat-icon-button 
           (click)="close()" 
-          aria-label="Close chat widget">
-          <mat-icon aria-hidden="true">close</mat-icon>
+          aria-label="Close chat widget"
+          matTooltip="Close"
+          [matTooltipPosition]="'below'">
+          <mat-icon>close</mat-icon>
         </button>
       </mat-toolbar>
 
@@ -68,7 +80,7 @@
             @if (currentQuestion() && !currentQuestion()!.isTerminal) {
               <ins-input-bar
                 [question]="currentQuestion()!.question"
-                [isLoading]="isLoading"
+                [isLoading]="isLoading()"
                 [error]="error()"
                 (submitAnswer)="onAnswerSubmit($event)" />
             }
@@ -76,9 +88,9 @@
             <!-- Navigation Controls -->
             @if (!isCompleted()) {
               <ins-navigation-controls
-                [allowBackNav]="allowBackNav"
-                [isFirstQuestion]="signal(messages().length <= 1)"
-                [allowForwardNav]="signal(false)"
+                [allowBackNav]="allowBackNav()"
+                [isFirstQuestion]="messages().length <= 1"
+                [allowForwardNav]="false"
                 (goBack)="onGoBack()"
                 (goForward)="onGoForward()" />
             }

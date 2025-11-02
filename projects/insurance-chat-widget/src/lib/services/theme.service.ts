@@ -88,8 +88,8 @@ export class ThemeService {
       return;
     }
 
-    // Material density
-    const densityClass = theme.darkMode ? `mat-${theme.density || 'comfortable'}` : `mat-${theme.density || 'comfortable'}`;
+    // Material density - set data attribute (class is reserved for future use)
+    // const densityClass = theme.darkMode ? `mat-${theme.density || 'comfortable'}` : `mat-${theme.density || 'comfortable'}`;
     this.renderer.setAttribute(this.document.body, 'data-density', theme.density || 'comfortable');
   }
 

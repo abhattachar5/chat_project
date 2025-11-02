@@ -6,6 +6,8 @@ import {
   signal,
   computed,
   effect,
+  runInInjectionContext,
+  Injector,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
@@ -45,6 +47,7 @@ export type TranscriptFilter = 'all' | 'user' | 'assistant' | 'system';
 export class TranscriptTabComponent implements OnInit, OnDestroy {
   private sessionService = inject(SessionService);
   private apiService = inject(ApiService);
+  private injector = inject(Injector);
   private subscriptions = new Subscription();
 
   // Transcript data
@@ -87,20 +90,25 @@ export class TranscriptTabComponent implements OnInit, OnDestroy {
   sessionId = computed(() => this.sessionService.sessionId());
 
   ngOnInit(): void {
-    // Load transcript when component initializes
-    effect(() => {
-      const sessionId = this.sessionId();
-      if (sessionId) {
-        this.loadTranscript();
-      }
-    });
+    // Load transcript when component initializes - must run in injection context
+    runInInjectionContext(this.injector, () => {
+      effect(() => {
+        const sessionId = this.sessionId();
+        if (sessionId) {
+          this.loadTranscript();
+        }
+      }, { allowSignalWrites: true });
 
-    // Reload transcript when session changes
-    const sessionSub = this.sessionService.session().subscribe(() => {
-      this.loadTranscript();
+      // Reload transcript when session changes
+      // Note: session() is a signal, not an observable, so we'll watch it with effect
+      effect(() => {
+        const currentSession = this.sessionService.session();
+        if (currentSession) {
+          // Small delay to avoid too many calls
+          setTimeout(() => this.loadTranscript(), 0);
+        }
+      }, { allowSignalWrites: true });
     });
-
-    this.subscriptions.add(sessionSub);
   }
 
   ngOnDestroy(): void {
@@ -240,14 +248,6 @@ export class TranscriptTabComponent implements OnInit, OnDestroy {
    */
   refresh(): void {
     this.loadTranscript();
-  }
-
-  /**
-   * Get masked text for sensitive items
-   */
-  getMaskedText(text: string): string {
-    // Simple masking - replace characters with • except spaces and punctuation
-    return text.replace(/[A-Za-z0-9]/g, '•');
   }
 }
 

@@ -34,7 +34,7 @@ export type MicButtonState = 'idle' | 'listening' | 'processing' | 'error';
   styleUrls: ['./mic-button.component.scss'],
 })
 export class MicButtonComponent implements OnInit, OnDestroy {
-  @Input() disabled = signal(false);
+  @Input() disabled: boolean = false;
   @Input() silenceTimeout = 5000; // 5 seconds default
   @Output() captureStart = new EventEmitter<void>();
   @Output() captureStop = new EventEmitter<void>();
@@ -44,7 +44,7 @@ export class MicButtonComponent implements OnInit, OnDestroy {
   private voiceService = inject(VoiceService);
   private subscriptions = new Subscription();
   private silenceTimer: ReturnType<typeof setTimeout> | null = null;
-  private lastAudioLevel = 0;
+  // private lastAudioLevel = 0; // Reserved for future audio level tracking
   private silenceStartTime: number | null = null;
 
   // State management
@@ -73,7 +73,8 @@ export class MicButtonComponent implements OnInit, OnDestroy {
     // Subscribe to audio level for silence detection
     const audioSub = this.voiceService.audioLevel$.subscribe((level) => {
       this.audioLevel.set(level);
-      this.lastAudioLevel = level;
+      // Track last audio level for silence detection
+      // this.lastAudioLevel = level; // Reserved for future use
       this.checkSilence(level);
     });
 
@@ -96,7 +97,7 @@ export class MicButtonComponent implements OnInit, OnDestroy {
    * Handle button press (mouse or touch)
    */
   async onPress(): Promise<void> {
-    if (this.disabled() || this.state() === 'processing') {
+    if (this.disabled || this.state() === 'processing') {
       return;
     }
 
@@ -243,7 +244,7 @@ export class MicButtonComponent implements OnInit, OnDestroy {
    */
   @HostListener('window:keydown', ['$event'])
   onKeyDown(event: KeyboardEvent): void {
-    if (event.altKey && event.key === 'v' && !this.disabled()) {
+    if (event.altKey && event.key === 'v' && !this.disabled) {
       event.preventDefault();
       if (this.state() === 'idle') {
         this.onPress();

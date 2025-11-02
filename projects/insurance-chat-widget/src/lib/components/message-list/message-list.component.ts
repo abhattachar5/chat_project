@@ -4,8 +4,6 @@ import {
   OnDestroy,
   Input,
   signal,
-  inject,
-  ChangeDetectorRef,
 } from '@angular/core';
 import { ScrollingModule } from '@angular/cdk/scrolling';
 import { CommonModule } from '@angular/common';
@@ -25,7 +23,7 @@ export class MessageListComponent implements OnInit, OnDestroy {
   @Input() messages = signal<ChatMessage[]>([]);
   @Input() currentQuestion: QuestionEnvelope | null = null;
 
-  private cdr = inject(ChangeDetectorRef);
+  // ChangeDetectorRef not needed - signals handle change detection
   private scrollContainer: HTMLElement | null = null;
 
   ngOnInit(): void {

@@ -1,4 +1,4 @@
-import { Injectable, inject, signal, effect, OnDestroy } from '@angular/core';
+import { Injectable, inject, signal, OnDestroy } from '@angular/core';
 import { DOCUMENT } from '@angular/common';
 
 /**
@@ -12,7 +12,7 @@ export class AccessibilityService implements OnDestroy {
   private document = inject(DOCUMENT);
   private keyListeners: Map<string, (event: KeyboardEvent) => void> = new Map();
   private focusHistory: HTMLElement[] = [];
-  private currentFocusElement: HTMLElement | null = null;
+  // private currentFocusElement: HTMLElement | null = null; // Reserved for future focus tracking
 
   // Signals for accessibility state
   isReducedMotion = signal(false);
@@ -156,25 +156,25 @@ export class AccessibilityService implements OnDestroy {
   /**
    * Handle forward tab navigation
    */
-  private handleFocusForward(event: KeyboardEvent): void {
+  private handleFocusForward(_event: KeyboardEvent): void {
     // Focus trap logic can be added here
     // For now, we just track focus
     const activeElement = this.document?.activeElement as HTMLElement;
     if (activeElement) {
       this.focusHistory.push(activeElement);
-      this.currentFocusElement = activeElement;
+      // this.currentFocusElement = activeElement; // Reserved for future use
     }
   }
 
   /**
    * Handle backward tab navigation (Shift+Tab)
    */
-  private handleFocusBackward(event: KeyboardEvent): void {
+  private handleFocusBackward(_event: KeyboardEvent): void {
     // Focus trap logic can be added here
     const activeElement = this.document?.activeElement as HTMLElement;
     if (activeElement) {
       this.focusHistory.push(activeElement);
-      this.currentFocusElement = activeElement;
+      // this.currentFocusElement = activeElement; // Reserved for future use
     }
   }
 
@@ -216,7 +216,7 @@ export class AccessibilityService implements OnDestroy {
   focusElement(element: HTMLElement | null): void {
     if (element && typeof element.focus === 'function') {
       element.focus();
-      this.currentFocusElement = element;
+      // this.currentFocusElement = element; // Reserved for future use
     }
   }
 

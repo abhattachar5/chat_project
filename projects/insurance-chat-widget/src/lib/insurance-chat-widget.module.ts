@@ -60,6 +60,10 @@ import { InputBarComponent } from './components/input-bar/input-bar.component';
     MatCheckboxModule,
     MatRadioModule,
     ScrollingModule,
+    // Standalone components - must be imported, not declared
+    ChatWidgetShellComponent,
+    MessageListComponent,
+    InputBarComponent,
   ],
   exports: [
     ChatWidgetShellComponent,

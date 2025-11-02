@@ -3,6 +3,7 @@ export interface WidgetConfig {
   tenantId: string;
   applicationId: string;
   environment: 'prod' | 'staging' | 'dev';
+  apiBaseUrl?: string; // Optional custom API base URL (overrides environment defaults)
   locale?: string;
   theme?: ThemeConfig;
   features?: FeatureConfig;
@@ -80,10 +81,13 @@ export interface QuestionConstraints {
 }
 
 export interface QuestionEnvelope {
-  sessionId: string;
-  question: Question;
+  sessionId?: string; // Optional as it might not always be provided
+  question: Question | null;
   ttsHint?: string;
   isTerminal?: boolean;
+  progress?: number; // Progress from backend (0..1)
+  decision?: string; // Decision for terminal questions
+  decisionReason?: string; // Reason for decision
 }
 
 export interface AnswerEnvelope {

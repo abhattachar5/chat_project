@@ -1,6 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { Observable, Subject, fromEvent, merge } from 'rxjs';
-import { takeUntil, map } from 'rxjs/operators';
+import { Subject } from 'rxjs';
 import { WidgetConfigService } from './widget-config.service';
 import { AnalyticsService } from './analytics.service';
 

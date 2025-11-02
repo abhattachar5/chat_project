@@ -3,16 +3,12 @@ import {
   Input,
   Output,
   EventEmitter,
-  inject,
   computed,
-  signal,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { SessionService } from '../../services/session.service';
-import { QuestionService } from '../../services/question.service';
 
 @Component({
   selector: 'ins-navigation-controls',
@@ -27,21 +23,21 @@ import { QuestionService } from '../../services/question.service';
   styleUrls: ['./navigation-controls.component.scss'],
 })
 export class NavigationControlsComponent {
-  private sessionService = inject(SessionService);
-  private questionService = inject(QuestionService);
+  // Services reserved for future use
 
-  @Input() allowBackNav = signal(false);
-  @Input() isFirstQuestion = signal(false);
+  @Input() allowBackNav: boolean = false;
+  @Input() isFirstQuestion: boolean = false;
+  @Input() allowForwardNav: boolean = false;
   @Output() goBack = new EventEmitter<void>();
   @Output() goForward = new EventEmitter<void>();
 
   // Computed states
   canGoBack = computed(() => {
-    return this.allowBackNav() && !this.isFirstQuestion();
+    return this.allowBackNav && !this.isFirstQuestion;
   });
 
   canGoForward = computed(() => {
-    return this.allowForwardNav();
+    return this.allowForwardNav;
   });
 
   /**
@@ -66,10 +62,10 @@ export class NavigationControlsComponent {
    * Get back button tooltip
    */
   getBackTooltip(): string {
-    if (!this.allowBackNav()) {
+    if (!this.allowBackNav) {
       return 'Back navigation not allowed by rules engine';
     }
-    if (this.isFirstQuestion()) {
+    if (this.isFirstQuestion) {
       return 'This is the first question';
     }
     return 'Go back to previous question';

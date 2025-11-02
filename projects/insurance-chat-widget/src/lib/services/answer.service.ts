@@ -4,7 +4,7 @@ import { tap, catchError } from 'rxjs/operators';
 import { ApiService, ApiError } from './api.service';
 import { SessionService } from './session.service';
 import { AnalyticsService } from './analytics.service';
-import { AnswerEnvelope, QuestionEnvelope, ValidationError } from '../models/widget-config.model';
+import { AnswerEnvelope, QuestionEnvelope } from '../models/widget-config.model';
 
 @Injectable({
   providedIn: 'root',
@@ -42,7 +42,7 @@ export class AnswerService {
       tap((envelope) => {
         const latency = Date.now() - startTime;
 
-        // Update session with next question
+        // Update session with next question (this will also update progress)
         this.sessionService.setCurrentQuestion(envelope);
 
         // Analytics

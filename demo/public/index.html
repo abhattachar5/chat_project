@@ -295,32 +295,14 @@
         return;
       }
 
-      // Check if widget script is loaded
-      if (typeof InsuranceChatWidget === 'undefined') {
-        showStatus('initStatus', 'Loading widget script...', 'success');
-        
-        // Load widget script from Angular app (adjust port if different)
-        const script = document.createElement('script');
-        script.src = 'http://localhost:4200/widget-initializer.js'; // This would be the actual UMD bundle
-        script.onerror = () => {
-          showStatus('initStatus', 'Error: Could not load widget. Make sure Angular app is running on port 4200.', 'error');
-        };
-        document.head.appendChild(script);
-        
-        // Wait for script to load
-        script.onload = () => {
-          initializeWidget();
-        };
-      } else {
-        initializeWidget();
-      }
+      // For demo, we'll use an iframe to embed the Angular app directly
+      // This avoids CORS issues and works seamlessly
+      showStatus('initStatus', 'Initializing widget...', 'success');
+      initializeWidget();
     });
 
     function initializeWidget() {
       try {
-        // For local testing, we'll use a simpler initialization
-        // In production, this would use InsuranceChatWidget.init()
-        
         // Create widget container
         const container = document.getElementById('chat-widget-container');
         if (!container) {
@@ -328,17 +310,26 @@
           return;
         }
 
-        // For demo purposes, create a simple iframe pointing to the Angular app
-        // Or inject the widget component directly
-        
-        // Since we need the actual widget, let's create a message to embed
-        const widgetFrame = document.createElement('iframe');
-        widgetFrame.src = 'http://localhost:4200';
-        widgetFrame.style.cssText = 'width: 100%; height: 600px; border: none; border-radius: 8px;';
-        container.appendChild(widgetFrame);
+        // Check if Angular app is accessible
+        fetch('http://localhost:4200', { method: 'HEAD', mode: 'no-cors' })
+          .then(() => {
+            // Create iframe pointing to the Angular app
+            const widgetFrame = document.createElement('iframe');
+            widgetFrame.id = 'widget-iframe';
+            widgetFrame.src = 'http://localhost:4200';
+            widgetFrame.style.cssText = 'width: 100%; height: 600px; border: none; border-radius: 8px;';
+            widgetFrame.title = 'Insurance Chat Widget';
+            widgetFrame.onerror = () => {
+              showStatus('initStatus', 'Error: Could not load widget. Make sure Angular app is running on port 4200.', 'error');
+            };
+            container.appendChild(widgetFrame);
 
-        widgetInitialized = true;
-        showStatus('initStatus', 'Widget initialized successfully! Look for the chat icon in the bottom-right corner.', 'success');
+            widgetInitialized = true;
+            showStatus('initStatus', 'Widget initialized successfully! Look for the chat icon in the bottom-right corner of the widget area.', 'success');
+          })
+          .catch(() => {
+            showStatus('initStatus', 'Error: Could not connect to Angular app on port 4200. Make sure it is running.', 'error');
+          });
       } catch (error) {
         showStatus('initStatus', 'Error initializing widget: ' + error.message, 'error');
         console.error('Widget initialization error:', error);

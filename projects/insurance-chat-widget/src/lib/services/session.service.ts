@@ -1,6 +1,6 @@
 import { Injectable, inject, signal, computed } from '@angular/core';
-import { Observable, throwError, timer } from 'rxjs';
-import { retry, catchError, tap } from 'rxjs/operators';
+import { Observable, throwError } from 'rxjs';
+import { catchError, tap } from 'rxjs/operators';
 import { ApiService } from './api.service';
 import { WidgetConfigService } from './widget-config.service';
 import { AnalyticsService } from './analytics.service';
@@ -155,6 +155,14 @@ export class SessionService {
    */
   setCurrentQuestion(envelope: QuestionEnvelope | null): void {
     this.currentQuestion.set(envelope);
+    
+    // Update session progress if provided in envelope
+    if (envelope?.progress !== undefined && this.currentSession()) {
+      this.currentSession.set({
+        ...this.currentSession()!,
+        progress: envelope.progress,
+      });
+    }
   }
 
   /**

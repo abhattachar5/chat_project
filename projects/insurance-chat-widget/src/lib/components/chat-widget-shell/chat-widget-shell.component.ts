@@ -6,13 +6,16 @@ import {
   inject,
   computed,
   effect,
+  runInInjectionContext,
+  Injector,
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
-import { WidgetConfigService } from '../../services/widget-config.service';
+import { MatTooltipModule } from '@angular/material/tooltip';
+// WidgetConfigService not needed - services handle config
 import { ThemeService } from '../../services/theme.service';
 import { AccessibilityService } from '../../services/accessibility.service';
 import { SessionService } from '../../services/session.service';
@@ -37,6 +40,7 @@ import { Subscription } from 'rxjs';
     MatToolbarModule,
     MatIconModule,
     MatButtonModule,
+    MatTooltipModule,
     MessageListComponent,
     InputBarComponent,
     TranscriptTabComponent,
@@ -48,15 +52,21 @@ import { Subscription } from 'rxjs';
   styleUrls: ['./chat-widget-shell.component.scss'],
 })
 export class ChatWidgetShellComponent implements OnInit, OnDestroy {
-  private configService = inject(WidgetConfigService);
+  // Config service not used directly - services use it
   private themeService = inject(ThemeService);
   private accessibilityService = inject(AccessibilityService);
   private sessionService = inject(SessionService);
   private questionService = inject(QuestionService);
   private answerService = inject(AnswerService);
+  private injector = inject(Injector);
   private subscriptions = new Subscription();
 
   isExpanded = signal(false);
+  
+  // Public method to expand widget (for demo/testing)
+  expand(): void {
+    this.isExpanded.set(true);
+  }
   activeTab = signal<'chat' | 'transcript'>('chat');
   messages = signal<ChatMessage[]>([]);
   currentQuestion = computed(() => this.questionService.getCurrentQuestion());
@@ -82,12 +92,14 @@ export class ChatWidgetShellComponent implements OnInit, OnDestroy {
     // Auto-start session when component initializes
     this.startSession();
 
-    // Watch for question changes
-    effect(() => {
-      const question = this.currentQuestion();
-      if (question) {
-        this.addQuestionToMessages(question);
-      }
+    // Watch for question changes - must run in injection context and allow signal writes
+    runInInjectionContext(this.injector, () => {
+      effect(() => {
+        const question = this.currentQuestion();
+        if (question) {
+          this.addQuestionToMessages(question);
+        }
+      }, { allowSignalWrites: true });
     });
   }
 
@@ -106,7 +118,7 @@ export class ChatWidgetShellComponent implements OnInit, OnDestroy {
     };
 
     const sub = this.sessionService.startSession(consent).subscribe({
-      next: (session) => {
+      next: () => {
         // Fetch first question
         this.fetchNextQuestion();
       },
@@ -124,7 +136,7 @@ export class ChatWidgetShellComponent implements OnInit, OnDestroy {
    */
   fetchNextQuestion(): void {
     const sub = this.questionService.fetchNextQuestion().subscribe({
-      next: (envelope) => {
+      next: () => {
         // Question will be added to messages via effect
       },
       error: (error) => {
@@ -142,6 +154,7 @@ export class ChatWidgetShellComponent implements OnInit, OnDestroy {
   onAnswerSubmit(answer: string | number | boolean | string[] | Record<string, unknown>): void {
     const question = this.currentQuestion();
     if (!question || !question.question) {
+      console.warn('No current question to submit answer to');
       return;
     }
 
@@ -153,12 +166,17 @@ export class ChatWidgetShellComponent implements OnInit, OnDestroy {
       .submitAnswer(question.question.id, answer)
       .subscribe({
         next: (envelope) => {
+          console.log('Answer submitted successfully, received envelope:', envelope);
+          
           // Check if terminal
           if (envelope.isTerminal) {
             this.addSystemMessage('Thank you! Your interview has been completed.');
+          } else if (envelope.question) {
+            // Next question will be loaded automatically via effect
+            // The effect watches currentQuestion() and will add it to messages
+            console.log('Next question received:', envelope.question.prompt);
           } else {
-            // Next question will be loaded automatically
-            // Question will be added via effect
+            console.warn('Received envelope without question:', envelope);
           }
         },
         error: (error) => {
@@ -173,9 +191,21 @@ export class ChatWidgetShellComponent implements OnInit, OnDestroy {
 
   /**
    * Add question to messages
+   * Prevents duplicate questions from being added
    */
   private addQuestionToMessages(envelope: QuestionEnvelope): void {
     if (!envelope.question) {
+      return;
+    }
+
+    // Check if this question was already added to prevent duplicates
+    const questionId = envelope.question.id;
+    const existingMessage = this.messages().find(
+      (msg) => msg.questionId === questionId || msg.id === `question-${questionId}`
+    );
+    
+    if (existingMessage) {
+      // Question already exists, skip adding it again
       return;
     }
 
@@ -217,6 +247,20 @@ export class ChatWidgetShellComponent implements OnInit, OnDestroy {
     };
 
     this.messages.update((msgs) => [...msgs, message]);
+  }
+
+  /**
+   * Refresh/restart the session
+   */
+  refresh(): void {
+    // Clear messages
+    this.messages.set([]);
+    
+    // Clear session
+    this.sessionService.clearSession();
+    
+    // Restart session
+    this.startSession();
   }
 
   /**
